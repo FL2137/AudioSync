@@ -45,7 +45,7 @@ public:
 
 	void captureAudio(uint16_t* audioBuffer, int audioBufferSize);
 
-	HRESULT winAudioCapture(uint16_t* audioBuffer, int audioBufferSize);
+	HRESULT winAudioCapture(QByteArray* audioBuffer, int audioBufferSize);
 	HRESULT winAudioRender(uint16_t* audioBuffer, int audioBufferSize);
 
 
@@ -58,7 +58,8 @@ public slots:
 	void stopActivity();
 
 private:
-	void copyAudioData(uint16_t* target, uint8_t* source, int framesToWrite, int blockSize, bool& finish);
+    void copyAudioData(uint16_t* target, uint8_t* source, int framesToWrite, int blockSize, bool& finish);
+    void copyAudioData(QByteArray* target, uint8_t* source, int framesToWrite, int blockSize, bool& finish);
 
 	uint16_t* sharedBuffer;
 	uint32_t recordBufferIter = 0;

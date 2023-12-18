@@ -77,17 +77,26 @@ void AudioHandler::copyAudioData(uint16_t* target, uint8_t* source, int framesTo
 	std::memcpy(target + recordBufferIter, source, bytesToWrite);
     recordBufferIter += bytesToWrite / 2;
 
-
     if (clock() > 5 * CLOCKS_PER_SEC) //Record 10 seconds. From the first time call clock() at the beginning of the main().
         finish = true;
-
-
-
 	//if(overflow) finish = true;
 }
 
+void AudioHandler::copyAudioData(QByteArray* target, uint8_t* source, int framesToWrite, int blockSize, bool& finish) {
 
-HRESULT AudioHandler::winAudioCapture(uint16_t* audioBuffer, int audioBufferSize) {
+    long bytesToWrite = framesToWrite * blockSize;
+    std::memcpy(target->data() + recordBufferIter, source, bytesToWrite);
+    recordBufferIter += bytesToWrite;
+
+    if (clock() > (5 * CLOCKS_PER_SEC)) //Record 10 seconds. From the first time call clock() at the beginning of the main().
+        finish = true;
+    //if(overflow) finish = true;
+}
+
+
+HRESULT AudioHandler::winAudioCapture(QByteArray *audioBuffer, int audioBufferSize) {
+    
+    CoInitialize(0);
     HRESULT hr;
 
     REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
@@ -171,7 +180,7 @@ HRESULT AudioHandler::winAudioCapture(uint16_t* audioBuffer, int audioBufferSize
     pDevice->Release();
     pAudioClient->Release();
     pCaptureClient->Release();
-
+    CoUninitialize();
     return S_OK;
 }
 
