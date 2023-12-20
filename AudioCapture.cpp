@@ -60,6 +60,8 @@ void AudioCapture::winAudioCapture(QByteArray* buffer) {
 
 	bool finish = false;
 
+	int bufferSize = buffer->size();
+
 	while (!finish) {
 		Sleep(hnsActualDuration / 10000 / 2);
 
@@ -71,19 +73,21 @@ void AudioCapture::winAudioCapture(QByteArray* buffer) {
 				data = NULL;
 			
 			long bytesToWrite = nFramesAvailable * format->nBlockAlign;
+
 			std::memcpy(buffer->data() + bufferIter, data, bytesToWrite);
+		
 			bufferIter += bytesToWrite;
 
-			if (bufferIter >= (buffer->size() - 1764)) {
+			if (bufferIter >= (bufferSize - 1764)) {
 				bufferIter = 0;
 			}
 			//emit here?
-			emit this->bufferFilled();
+			//qDebug() << "bufferIter:" << bufferIter;
 
 
 			hr = captureClient->ReleaseBuffer(nFramesAvailable);
 			hr = captureClient->GetNextPacketSize(&packetLength);
 		}
-
 	}
+	emit this->bufferFilled();
 }

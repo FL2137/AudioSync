@@ -23,7 +23,7 @@
 class AudioCapture : public QObject {
 
 	Q_OBJECT
-
+ 
 public slots:
 	void winAudioCapture(QByteArray* buffer);
 
