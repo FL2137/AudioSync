@@ -6,10 +6,12 @@
 #include "AudioHandler.hpp"
 #include "AudioRender.hpp"
 #include "AudioCapture.hpp"
+#include "UdpServer.hpp"
 
 #include <qaudiosink.h>
 #include <qrandom.h>
 #include <qthreadpool.h>
+#include <qobject.h>
 #include <qpushbutton.h>
 #include <qstyle.h>
 
@@ -38,6 +40,9 @@ private:
 
     QThread captureThread;
     QThread renderThread;
+
+    UdpServer* server;
+
 
 };
 
