@@ -16,11 +16,7 @@ void UdpServer::readPendingData() {
 	while (socket->hasPendingDatagrams()) {
 		QNetworkDatagram datagram = socket->receiveDatagram();
 		qDebug() << "senderAddress: " << datagram.senderAddress();
-		QString str;
-		QByteArray a;
-		qDebug() << datagram.data().toStdString();
 		*targetBuffer = datagram.data();
-		
 		//processData(datagram);
 	}
 }
