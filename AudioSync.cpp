@@ -10,7 +10,6 @@ AudioSync::AudioSync(QWidget *parent)
 
     ui.portLineEdit->setText("3002");
 
-    server = new UdpServer(&audioBuffer, ui.portLineEdit->text().toShort());
     capturer = new AudioCapture();
     renderer = new AudioRender();
 
@@ -23,6 +22,13 @@ AudioSync::AudioSync(QWidget *parent)
     renderer->moveToThread(&renderThread);
     connect(ui.playButton, &QPushButton::clicked, this, &AudioSync::startPlaying);
     renderThread.start();
+
+    connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
+        server = new UdpServer(&audioBuffer, ui.portLineEdit->text().toShort());
+        server->readPendingData();
+        ui.connectButton->setEnabled(false);
+    });
+
 
     listAudioDevices();
 }
@@ -71,10 +77,12 @@ void AudioSync::startPlaying() {
 }
 
 void AudioSync::startRecording() {
-    emit this->runRecordingThread(&audioBuffer);
+    emit runRecordingThread(&audioBuffer);
 }
 
 void AudioSync::signalFilled() { 
     qDebug() << "Sending datagram...";
+    QHostAddress addr(ui.hostLineEdit->text());
+
     server->sendDatagram(&this->audioBuffer, QHostAddress::LocalHost, 3002);
 }
