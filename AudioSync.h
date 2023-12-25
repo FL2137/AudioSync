@@ -6,6 +6,7 @@
 #include "AudioHandler.hpp"
 #include "AudioRender.hpp"
 #include "AudioCapture.hpp"
+#include "AudioFormat.hpp"
 #include "UdpServer.hpp"
 
 #include <qaudiosink.h>
@@ -13,6 +14,8 @@
 #include <qthreadpool.h>
 #include <qobject.h>
 #include <qpushbutton.h>
+#include <qlistwidget.h>
+#include <qlistview.h>
 #include <qstyle.h>
 
 class AudioSync : public QMainWindow
@@ -32,6 +35,12 @@ public slots:
 signals:
     void runRecordingThread(QByteArray* buffer);
 
+
+//private functions
+private:
+    void listAudioDevices();
+
+//private variables
 private:
     Ui::AudioSyncClass ui;
 
@@ -42,8 +51,6 @@ private:
     QThread renderThread;
 
     UdpServer* server;
-
-
 };
 
 
