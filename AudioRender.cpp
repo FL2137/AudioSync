@@ -1,10 +1,12 @@
 #include "AudioRender.hpp"
 
-
 void AudioRender::render(QByteArray *audioArray) {
-	QBuffer buffer(audioArray, nullptr);
-	buffer.open(QIODevice::ReadOnly);
+	(audioArray, nullptr);
 
+	buffer = new QBuffer(audioArray, nullptr);
+
+	buffer->open(QIODevice::ReadOnly);
+	
 	QAudioFormat format;
 	format.setSampleRate(44100);
 	format.setChannelCount(2);
@@ -16,5 +18,18 @@ void AudioRender::render(QByteArray *audioArray) {
 	}
 
 	sink = new QAudioSink(format, nullptr);
-	sink->start(&buffer);
+	sink->start(buffer);
+}
+
+
+void AudioRender::handleStateChange(QAudio::State state) {
+
+	switch (state) {
+		case QAudio::State::IdleState: {
+			//audio data run out;
+			qDebug() << "finished rendering audio";
+			sink->start(buffer);
+			break;
+		}
+	}
 }
