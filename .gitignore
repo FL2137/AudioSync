@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/AudioHandler.cpp
+/AudioHandler.hpp
+/AudioSync.ui
+/AudioSync.vcxproj.filters
+/lala.wav
+/AudioSync.vcxproj
