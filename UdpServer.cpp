@@ -1,23 +1,18 @@
 #include "UdpServer.hpp"
 
 
-UdpServer::UdpServer(QByteArray *targetBuffer, qint16 port) {
-
-	//find local address 
-	QNetworkInterface qNetInterface;
-	for (const QHostAddress& address : qNetInterface.allAddresses()) {
-		if (address.protocol() == QHostAddress::IPv4Protocol && address != QHostAddress::LocalHost) {
-			qDebug() << address.toString();
-		}
-	}
+UdpServer::UdpServer(QByteArray *targetBuffer, qint16 port, const QString &address) {
 
 	this->targetBuffer = targetBuffer;
 
 	socket = new QUdpSocket(this);
-	QHostAddress addr;
-	addr.setAddress("192.168.1.109");
-	socket->bind(addr, port);
+
+	QHostAddress hostAddress;
+	hostAddress.setAddress(address);
+
+	socket->bind(hostAddress, port);
 	connect(socket, &QUdpSocket::readyRead, this, &UdpServer::readPendingData);
+
 	qDebug() << "Socket.Port: " << socket->localPort() << "  Socket.Addr: " << socket->localAddress();
 }
 

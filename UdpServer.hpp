@@ -16,7 +16,7 @@ public:
 
 	UdpServer() {}
 
-	UdpServer(QByteArray *targetBuffer, qint16 port);
+	UdpServer(QByteArray *targetBuffer, qint16 port, const QString &address = "");
 
 	void sendDatagram(QByteArray* data, const QHostAddress& address, qint16 port);
 
