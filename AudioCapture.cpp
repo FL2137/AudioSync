@@ -77,7 +77,9 @@ void AudioCapture::winAudioCapture(QByteArray* buffer) {
 
 			std::memcpy(buffer->data(), data, bytesToWrite);
 		
-			emit this->bufferFilled();
+			server->sendDatagram(buffer, QHostAddress("192.168.1.101"), 3002);
+
+//			emit this->bufferFilled();
 			
 			
 			
