@@ -1,9 +1,12 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 
+#include "UdpServer.hpp"
+
 #include <qbytearray.h>
 #include <qdebug.h>
 #include <qobject.h>
+#include <qmutex.h>
 
 #include <Windows.h>
 #include <mmdeviceapi.h>
@@ -24,6 +27,15 @@ class AudioCapture : public QObject {
 
 	Q_OBJECT
  
+public:
+	std::shared_ptr<QMutex> mutex;
+	void setServer(UdpServer* server) {
+		this->server = server;
+	}
+
+private:
+	UdpServer* server;
+
 public slots:
 	void winAudioCapture(QByteArray* buffer);
 
