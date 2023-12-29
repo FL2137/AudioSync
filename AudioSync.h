@@ -45,13 +45,13 @@ private:
 private:
     Ui::AudioSyncClass ui;
 
-    AudioRender* renderer;
-    AudioCapture* capturer;
+    AudioRender* renderer = nullptr;
+    AudioCapture* capturer = nullptr;
 
     QThread captureThread;
     QThread renderThread;
 
-    UdpServer* server;
+    UdpServer* server = nullptr;
 };
 
 
