@@ -9,16 +9,19 @@
 #include <qmediadevices.h>
 #include <qfile.h>
 #include <qsemaphore.h>
+#include <qmutex.h>
 
 class AudioRender : public QObject {
 
 	Q_OBJECT
 
 public:
-	~AudioRender() {
-		delete buffer;
-		delete sink;
+
+	AudioRender(QMutex *mutex) {
+		this->mutex = mutex;
 	}
+
+	QMutex *mutex;
 
 public slots:
 	void render(QByteArray* buffer);

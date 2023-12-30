@@ -28,13 +28,19 @@ class AudioCapture : public QObject {
 	Q_OBJECT
  
 public:
-	std::shared_ptr<QMutex> mutex;
+
+	AudioCapture(QMutex* mutex, UdpServer* server) {
+		this->mutex = mutex;
+		this->server = server;
+	}
+
 	void setServer(UdpServer* server) {
 		this->server = server;
 	}
 
 private:
-	UdpServer* server;
+	UdpServer* server = nullptr;
+	QMutex *mutex = nullptr;
 
 public slots:
 	void winAudioCapture(QByteArray* buffer);
