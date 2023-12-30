@@ -29,9 +29,8 @@ class AudioCapture : public QObject {
  
 public:
 
-	AudioCapture(QMutex* mutex, UdpServer* server) {
+	AudioCapture(QMutex* mutex) {
 		this->mutex = mutex;
-		this->server = server;
 	}
 
 	void setServer(UdpServer* server) {
