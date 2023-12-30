@@ -52,30 +52,8 @@ private:
     QThread renderThread;
 
     UdpServer* server = nullptr;
+
+    QMutex captureMutex;
+    QMutex renderMutex;
+
 };
-
-
-/*
-
-const int bufsize = 1000000000;
-QByteArray bff;
-bff.resize(bufsize);
-bff.fill(0);
-
-AudioHandler ah;
-int a;
-ah.winAudioCapture(&bff, bufsize);
-qDebug() << "alalalala";
-QAudioFormat format;
-format.setSampleRate(44100);
-format.setChannelCount(2);
-format.setSampleFormat(QAudioFormat::Int16);
-
-tf.setData(bff);
-tf.open(QIODevice::ReadWrite);
-
-audio = new QAudioSink(format, nullptr);
-
-audio->start(&tf);
-
-*/

@@ -16,8 +16,10 @@ AudioSync::AudioSync(QWidget *parent)
     ui.portLineEdit->setText("3002");
     ui.hostLineEdit->setText("192.168.1.109");
 
-    capturer = new AudioCapture();
-    renderer = new AudioRender();
+
+    capturer = new AudioCapture(&captureMutex);
+    renderer = new AudioRender(&renderMutex);
+
 
     capturer->moveToThread(&captureThread);
     connect(ui.recordButton, &QPushButton::clicked, this, &AudioSync::startRecording);
@@ -31,7 +33,7 @@ AudioSync::AudioSync(QWidget *parent)
     renderThread.start();
 
     connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
-        server = new UdpServer(&renderBuffer, ui.portLineEdit->text().toShort(), ui.hostLineEdit->text());
+        server = new UdpServer(&renderBuffer, &renderMutex, ui.portLineEdit->text().toShort(), ui.hostLineEdit->text());
         capturer->setServer(server);
         server->readPendingData();
 

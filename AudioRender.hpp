@@ -10,6 +10,7 @@
 #include <qfile.h>
 #include <qsemaphore.h>
 #include <qmutex.h>
+#include <qthread.h>
 
 class AudioRender : public QObject {
 
