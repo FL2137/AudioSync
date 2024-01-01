@@ -1,5 +1,6 @@
 #pragma once
 
+//qt includes
 #include <qbytearray.h>
 #include <qdebug.h>
 #include <qobject.h>
@@ -11,6 +12,23 @@
 #include <qsemaphore.h>
 #include <qmutex.h>
 #include <qthread.h>
+
+//win32 includes
+#include <Windows.h>
+#include <mmdeviceapi.h>
+#include <audioclient.h>
+#include <mmreg.h>
+#include <guiddef.h>
+#include <devpkey.h>
+#include <initguid.h>
+#include <functiondiscoverykeys.h>
+#include <setupapi.h>
+#include <mmiscapi.h>
+#include <assert.h>
+#include <comdef.h>
+#include <mmeapi.h>
+
+
 
 class AudioRender : public QObject {
 
@@ -26,6 +44,7 @@ public:
 
 public slots:
 	void render(QByteArray* buffer);
+	void win32Render(QByteArray* buffer);
 
 signals:
 	void bufferRendered();
@@ -35,7 +54,7 @@ private:
 
 private:
 	QAudioSink* sink;
-	QBuffer* buffer;
+	QBuffer* qbuffer;
 	QFile* file;
 	//default format for audio is CD quality (441khz, 16bit sample size, 2 channels) 
 };
