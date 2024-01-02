@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-void AudioCapture::winAudioCapture(QByteArray* buffer) {
+void AudioCapture::win32AudioCapture(QByteArray* buffer) {
 	HRESULT hr;
 	qDebug() << "winAudioCapture()";
 	hr = CoInitialize(0);
@@ -63,7 +63,7 @@ void AudioCapture::winAudioCapture(QByteArray* buffer) {
 	int bufferSize = buffer->size();
 
 	while (!finish) {
-		Sleep(hnsActualDuration / 10000 / 2);
+		//Sleep(hnsActualDuration / 10000 / 2);
 
 		hr = captureClient->GetNextPacketSize(&packetLength);
 
@@ -74,14 +74,14 @@ void AudioCapture::winAudioCapture(QByteArray* buffer) {
 				data = NULL;
 			
 			long bytesToWrite = nFramesAvailable * format->nBlockAlign;
+			qDebug() << "BytesToWrite: " << bytesToWrite;
 
-			std::memcpy(buffer->data(), data, bytesToWrite);
-		
-			server->sendDatagram(buffer, QHostAddress("192.168.1.101"), 3002);
+			for (int div = 0; div < bytesToWrite; div += 252) {
+				std::memcpy(buffer->data(), data, bytesToWrite / 7);
+				server->sendDatagram(buffer, QHostAddress("192.168.1.109"), 3002);
+			}
 
 //			emit this->bufferFilled();
-			
-			
 			
 			//bufferIter += bytesToWrite;
 
