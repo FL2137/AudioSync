@@ -122,27 +122,13 @@ void AudioRender::win32Render(QByteArray* buffer) {
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 
-
-		//trace how much of the wav file we already played
-		IAudioClock* pClock;
-		audioClient->GetService(__uuidof(IAudioClock), (LPVOID*)(&pClock));
-		uint64_t playbackFrequency;
-		uint64_t playbackPosition;
-		pClock->GetFrequency(&playbackFrequency);
-		pClock->GetPosition(&playbackPosition, 0);
-		pClock->Release();
-		uint64_t playbackPosSeconds = playbackPosition / playbackFrequency;
-		uint64_t playbackPosSamples = playbackPosition / playbackFrequency;
 	}
 
 
 	//uninitialize COM drivers
 	CoUninitialize();
 
-
 	audioClient->Stop();
 	audioClient->Release();
 	renderClient->Release();
-
-
 }
