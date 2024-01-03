@@ -68,31 +68,34 @@ void AudioCapture::win32AudioCapture(QByteArray* buffer) {
 		hr = captureClient->GetNextPacketSize(&packetLength);
 
 		while (packetLength != 0) {
-			qDebug() << "BufferIter:" << bufferIter;
 			hr = captureClient->GetBuffer(&data, &nFramesAvailable, &flags, NULL, NULL);
 			if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
 				data = NULL;
 			
 			long bytesToWrite = nFramesAvailable * format->nBlockAlign;
-			qDebug() << "BytesToWrite: " << bytesToWrite;
+			//qDebug() << "BytesToWrite: " << bytesToWrite;
 
-			for (int div = 0; div < bytesToWrite; div += 252) {
-				std::memcpy(buffer->data(), data, bytesToWrite / 7);
-				server->sendDatagram(buffer, QHostAddress("192.168.1.109"), 3002);
+			if (data == NULL) {
+				qDebug() << "data NULL";
+				buffer->fill(0);
+				server->sendDatagram(buffer, QHostAddress("192.168.1.101"), 3002);
 			}
+			else {
+				//dividing buffer
+				/*for (int div = 0; div < bytesToWrite; div += 252) {
+					std::memcpy(buffer->data(), data + div, bytesToWrite / 7);
+					server->sendDatagram(buffer, QHostAddress("192.168.1.109"), 3002);
+				}*/
 
-//			emit this->bufferFilled();
-			
-			//bufferIter += bytesToWrite;
-
-			//if (bufferIter >= (bufferSize - 1764)) {
-				//bufferIter = 0;
-			//	finish = true;
-			//}
-			//emit here?
-			//qDebug() << "bufferIter:" << bufferIter;  
-
-
+				//not dividing buffer
+				/*FILE* fptr = fopen("logSERVER.txt", "w");
+				fwrite(data, sizeof(char), bytesToWrite, fptr);
+				finish = true;
+				fclose(fptr);
+				delete fptr;*/
+				qDebug() << "bytesToWrite: " << bytesToWrite;
+				server->sendDatagram((char*)data, bytesToWrite, QHostAddress("192.168.1.101"), 3002);
+			}
 			hr = captureClient->ReleaseBuffer(nFramesAvailable);
 			hr = captureClient->GetNextPacketSize(&packetLength);
 		}

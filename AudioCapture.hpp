@@ -8,6 +8,8 @@
 #include <qobject.h>
 #include <qmutex.h>
 
+#include <cstdio>
+
 #include <Windows.h>
 #include <mmdeviceapi.h>
 #include <audioclient.h>
@@ -42,7 +44,7 @@ private:
 	QMutex *mutex = nullptr;
 
 public slots:
-	void winAudioCapture(QByteArray* buffer);
+	void win32AudioCapture(QByteArray* buffer);
 
 signals:
 	void bufferFilled();
