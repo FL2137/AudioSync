@@ -76,7 +76,7 @@ void AudioRender::win32Render(QByteArray* buffer) {
 	REFERENCE_TIME requestedBufferDuration = 10000000 * 2;
 
 	DWORD streamFlags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
-	hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, requestedBufferDuration, 0, &fmt, nullptr);
+	hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, requestedBufferDuration, 0, &format, nullptr);
 
 	IAudioRenderClient* renderClient;
 
@@ -104,24 +104,32 @@ void AudioRender::win32Render(QByteArray* buffer) {
 		uint32_t nFramesToWrite = soundBufferLatency - bufferPadding;
 
 		int16_t* renderBuffer;
+		
 		renderClient->GetBuffer(nFramesToWrite, (BYTE**)(&renderBuffer));
-		qDebug() << "nframes to write: " << nFramesToWrite;
+		//qDebug() << "nframes to write: " << nFramesToWrite;
+		
+		samplesIterator = 0;
 
+		qDebug() << "framesToWrite: " << nFramesToWrite;
+			
+		mutex->lock();
 		for (uint32_t frameI = 0; frameI < nFramesToWrite; ++frameI) {
-			*renderBuffer++ = buffer->data()[samplesIterator];
-			*renderBuffer++ = buffer->data()[samplesIterator];
 
-			samplesIterator += 2;
+			*renderBuffer++ = buffer->data()[samplesIterator] | (buffer->data()[samplesIterator + 1] << 8);
+			*renderBuffer++ = buffer->data()[samplesIterator] | (buffer->data()[samplesIterator + 1] << 8);
+
+			//*renderBuffer++ = buffer->data()[samplesIterator++];
+
+			samplesIterator += 4;
 
 			if (samplesIterator >= buffer->size())
 				samplesIterator = 0;
 
 			samplesIterator %= buffer->size();
 		}
-
+		mutex->unlock();
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
-
 	}
 
 
