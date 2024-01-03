@@ -367,3 +367,5 @@ FodyWeavers.xsd
 /AudioSync.vcxproj.filters
 /lala.wav
 /AudioSync.vcxproj
+/logClient.txt
+/logSERVER.txt
