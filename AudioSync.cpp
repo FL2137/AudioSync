@@ -23,13 +23,13 @@ AudioSync::AudioSync(QWidget *parent)
 
     capturer->moveToThread(&captureThread);
     connect(ui.recordButton, &QPushButton::clicked, this, &AudioSync::startRecording);
-    connect(this, &AudioSync::runRecordingThread, capturer, &AudioCapture::winAudioCapture);
+    connect(this, &AudioSync::runRecordingThread, capturer, &AudioCapture::win32AudioCapture);
     connect(capturer, &AudioCapture::bufferFilled, this, &AudioSync::signalFilled);
     captureThread.start();
 
     renderer->moveToThread(&renderThread);
     connect(ui.playButton, &QPushButton::clicked, this, &AudioSync::startPlaying);
-    connect(this, &AudioSync::runRenderingThread, renderer, &AudioRender::render);
+    connect(this, &AudioSync::runRenderingThread, renderer, &AudioRender::win32Render);
     renderThread.start();
 
     connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
@@ -40,8 +40,19 @@ AudioSync::AudioSync(QWidget *parent)
         ui.connectButton->setEnabled(false);
     });
 
+    ui.addressList->addItems(UdpServer::listLocalAddresses());
+ 
+    uiConnects();
+}
 
-    listAudioDevices();
+
+void AudioSync::uiConnects() {
+    connect(ui.addressList, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
+        qDebug() << "Address set!";
+        myAddress = item->text();
+        qDebug() << myAddress;
+    });
+
 }
 
 AudioSync::~AudioSync() {

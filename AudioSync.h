@@ -41,6 +41,8 @@ signals:
 private:
     void listAudioDevices();
 
+    void uiConnects();
+
 //private variables
 private:
     Ui::AudioSyncClass ui;
@@ -55,5 +57,7 @@ private:
 
     QMutex captureMutex;
     QMutex renderMutex;
+
+    mutable QString myAddress = "";
 
 };
