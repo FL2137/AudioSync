@@ -33,7 +33,7 @@ AudioSync::AudioSync(QWidget *parent)
     renderThread.start();
 
     connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
-        server = new UdpServer(&renderBuffer, &renderMutex, ui.portLineEdit->text().toShort(), ui.hostLineEdit->text());
+        server = new UdpServer(&renderBuffer, &renderMutex, ui.portLineEdit->text().toShort(), localAddress);
         capturer->setServer(server);
         server->readPendingData();
 
@@ -49,10 +49,9 @@ AudioSync::AudioSync(QWidget *parent)
 void AudioSync::uiConnects() {
     connect(ui.addressList, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
         qDebug() << "Address set!";
-        myAddress = item->text();
-        qDebug() << myAddress;
+        localAddress = item->text();
+        qDebug() << localAddress;
     });
-
 }
 
 AudioSync::~AudioSync() {
