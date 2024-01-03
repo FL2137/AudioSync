@@ -24,8 +24,14 @@ void UdpServer::readPendingData() {
 	while (socket->hasPendingDatagrams()) {
 		
 		QNetworkDatagram datagram = socket->receiveDatagram();
-		qDebug() << "data: " << datagram.data().size();
 		
+		/*qDebug() << "data: " << datagram.data().size();
+		FILE* fptr = fopen("logClient.txt", "w");
+		fwrite(datagram.data().data(), sizeof(char), datagram.data().size(), fptr);
+		fclose(fptr);
+		delete fptr;*/
+
+
 		//qDebug() << "UdpServer.Mutex::lock()";
 		
 		renderMutex->lock();
@@ -54,7 +60,7 @@ void UdpServer::sendDatagram(QByteArray *data, const QHostAddress &address, qint
 }
 
 void UdpServer::sendDatagram(char* data, qint64 size, const QHostAddress &address, qint16 port) {
-		
+
 	qint64 ret = socket->writeDatagram(data, size, address, port);
 	if (ret == -1) {
 		qWarning() << socket->errorString();
@@ -65,13 +71,12 @@ void UdpServer::sendDatagram(char* data, qint64 size, const QHostAddress &addres
 }
 
 
-
-QList<QHostAddress> UdpServer::listLocalAddresses() {
+QList<QString> UdpServer::listLocalAddresses() {
 	QNetworkInterface qNetInterface;
-	QList<QHostAddress> list = {};
+	QList<QString> list = {};
 	for (const QHostAddress& address : qNetInterface.allAddresses()) {
 		if (address.protocol() == QHostAddress::IPv4Protocol && address != QHostAddress::LocalHost) {
-			list.push_back(address);
+			list.push_back(address.toString());
 		}
 	}
 	return list;

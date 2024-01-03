@@ -23,8 +23,7 @@ public:
 	
 	void sendDatagram(char* data, qint64 size, const QHostAddress& address, qint16 port);
 
-	static QList<QHostAddress> listLocalAddresses();
-
+	static QList<QString> listLocalAddresses();
 
 public slots: 
 	void readPendingData();
