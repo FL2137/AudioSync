@@ -53,7 +53,7 @@ void AudioRender::handleStateChange(QAudio::State state) {
 }
 
 
-void AudioRender::win32Render(QByteArray* buffer) {
+void AudioRender::win32Render(char *buffer) {
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
 	IMMDeviceEnumerator* enumerator;
 	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&enumerator);
@@ -94,7 +94,6 @@ void AudioRender::win32Render(QByteArray* buffer) {
 	int samplesIterator = 0;
 
 	bool run = true;
-
 	while (run) {
 
 		uint32_t bufferPadding;
@@ -102,32 +101,39 @@ void AudioRender::win32Render(QByteArray* buffer) {
 
 		uint32_t soundBufferLatency = bufferSizeFrames / 50;
 		uint32_t nFramesToWrite = soundBufferLatency - bufferPadding;
+		qDebug() << "Padding: " << bufferPadding << "   bufferSizeFrames: " << bufferSizeFrames << "  bufferLatency: " << soundBufferLatency << "  nFramesToWrite: " << nFramesToWrite;
+
 
 		int16_t* renderBuffer;
 		
-		renderClient->GetBuffer(nFramesToWrite, (BYTE**)(&renderBuffer));
+		renderClient->GetBuffer(1764, (BYTE**)(&renderBuffer));
 		//qDebug() << "nframes to write: " << nFramesToWrite;
 		
 		samplesIterator = 0;
 
 		qDebug() << "framesToWrite: " << nFramesToWrite;
 			
-		mutex->lock();
-		for (uint32_t frameI = 0; frameI < nFramesToWrite; ++frameI) {
+		if (nFramesToWrite != 0) {
+			mutex->lock();
+			for (uint32_t frameI = 0; frameI < 1764; ++frameI) {
 
-			*renderBuffer++ = buffer->data()[samplesIterator] | (buffer->data()[samplesIterator + 1] << 8);
-			*renderBuffer++ = buffer->data()[samplesIterator] | (buffer->data()[samplesIterator + 1] << 8);
+				*renderBuffer++ = buffer->data()[samplesIterator] | (buffer->data()[samplesIterator + 1] << 8);
+				*renderBuffer++ = buffer->data()[samplesIterator] | (buffer->data()[samplesIterator + 1] << 8);
 
-			//*renderBuffer++ = buffer->data()[samplesIterator++];
+				//*renderBuffer++ = buffer->data()[samplesIterator++];
 
-			samplesIterator += 4;
+				samplesIterator += 4;
 
-			if (samplesIterator >= buffer->size())
-				samplesIterator = 0;
+				if (samplesIterator >= buffer->size())
+					samplesIterator = 0;
 
-			samplesIterator %= buffer->size();
+				samplesIterator %= buffer->size();
+			}
+			mutex->unlock();
 		}
-		mutex->unlock();
+		else {
+			//fill renderBuffer with 0?
+		}
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 	}

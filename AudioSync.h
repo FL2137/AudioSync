@@ -26,7 +26,8 @@ public:
     AudioSync(QWidget *parent = nullptr);
     ~AudioSync();
     QByteArray captureBuffer;
-    QByteArray renderBuffer;
+
+    char* renderBuffer;
 
 public slots:
     void startRecording();
@@ -35,7 +36,7 @@ public slots:
 
 signals:
     void runRecordingThread(QByteArray* buffer);
-    void runRenderingThread(QByteArray* buffer);
+    void runRenderingThread(char* buffer);
 
 //private functions
 private:

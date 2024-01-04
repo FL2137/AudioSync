@@ -8,8 +8,7 @@ AudioSync::AudioSync(QWidget *parent)
     captureBuffer.resize(size);
     captureBuffer.fill(0);
 
-    renderBuffer.resize(size);
-    renderBuffer.fill(0);
+    renderBuffer = new char[size] { 0 };
 
     ui.setupUi(this);
 
@@ -33,7 +32,7 @@ AudioSync::AudioSync(QWidget *parent)
     renderThread.start();
 
     connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
-        server = new UdpServer(&renderBuffer, &renderMutex, ui.portLineEdit->text().toShort(), localAddress);
+        server = new UdpServer(renderBuffer, &renderMutex, ui.portLineEdit->text().toShort(), localAddress);
         capturer->setServer(server);
         server->readPendingData();
 
@@ -92,7 +91,7 @@ void AudioSync::listAudioDevices() {
 
 //slots and signals
 void AudioSync::startPlaying() {
-    emit runRenderingThread(&renderBuffer);
+    emit runRenderingThread(renderBuffer);
 }
 
 void AudioSync::startRecording() {

@@ -17,7 +17,7 @@ public:
 
 	UdpServer() {}
 
-	UdpServer(QByteArray *targetBuffer, QMutex *renderMutex, qint16 port, const QString &address = "");
+	UdpServer(char *targetBuffer, QMutex *renderMutex, qint16 port, const QString &address = "");
 
 	void sendDatagram(QByteArray* data, const QHostAddress& address, qint16 port);
 	
@@ -30,7 +30,7 @@ public slots:
 
 private:
 	QUdpSocket* socket = nullptr;
-	QByteArray* targetBuffer = nullptr;
+	char* targetBuffer = nullptr;
 
 	QMutex* renderMutex;
 };

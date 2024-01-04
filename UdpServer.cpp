@@ -1,7 +1,7 @@
 #include "UdpServer.hpp"
 
 
-UdpServer::UdpServer(QByteArray *targetBuffer, QMutex *renderMutex, qint16 port, const QString &address) {
+UdpServer::UdpServer(char *targetBuffer, QMutex *renderMutex, qint16 port, const QString &address) {
 
 	this->targetBuffer = targetBuffer;
 	this->renderMutex = renderMutex;
@@ -35,7 +35,7 @@ void UdpServer::readPendingData() {
 		//qDebug() << "UdpServer.Mutex::lock()";
 		
 		renderMutex->lock();
-		targetBuffer->insert(0, datagram.data());
+		std::memcpy(targetBuffer, datagram.data().data(), 1764);
 		renderMutex->unlock();
 		
 		//qDebug() << "UdpServer.Mutex::unlock()";

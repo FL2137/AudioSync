@@ -1,4 +1,5 @@
 #pragma once
+#define WIN32_LEAN_AND_MEAN
 
 //qt includes
 #include <qbytearray.h>
@@ -19,8 +20,6 @@
 #include <audioclient.h>
 #include <mmreg.h>
 #include <guiddef.h>
-#include <devpkey.h>
-#include <initguid.h>
 #include <functiondiscoverykeys.h>
 #include <setupapi.h>
 #include <mmiscapi.h>
@@ -44,7 +43,7 @@ public:
 
 public slots:
 	void render(QByteArray* buffer);
-	void win32Render(QByteArray* buffer);
+	void win32Render(char *buffer);
 
 signals:
 	void bufferRendered();
