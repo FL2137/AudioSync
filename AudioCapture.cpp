@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-void AudioCapture::win32AudioCapture(QByteArray* buffer) {
+void AudioCapture::win32AudioCapture(char* buffer) {
 	HRESULT hr;
 	qDebug() << "winAudioCapture()";
 	hr = CoInitialize(0);
@@ -77,11 +77,11 @@ void AudioCapture::win32AudioCapture(QByteArray* buffer) {
 			if (data == NULL) {
 				qDebug() << "data NULL";
 				buffer->fill(0);
-				server->sendDatagram(buffer, QHostAddress("192.168.1.101"), 3002);
+				server->sendDatagram(buffer, QHostAddress("192.168.1.105"), 3002);
 			}
 			else {
 				qDebug() << "bytesToWrite: " << bytesToWrite;
-				server->sendDatagram((char*)data, bytesToWrite, QHostAddress("192.168.1.101"), 3002);
+				server->sendDatagram((char*)data, bytesToWrite, QHostAddress("192.168.1.105"), 3002);
 			}
 			hr = captureClient->ReleaseBuffer(nFramesAvailable);
 			hr = captureClient->GetNextPacketSize(&packetLength);

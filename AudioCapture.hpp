@@ -44,7 +44,7 @@ private:
 	QMutex *mutex = nullptr;
 
 public slots:
-	void win32AudioCapture(QByteArray* buffer);
+	void win32AudioCapture(char* buffer);
 
 signals:
 	void bufferFilled();
