@@ -35,7 +35,7 @@ public slots:
     void signalFilled();
 
 signals:
-    void runRecordingThread(QByteArray* buffer);
+    void runRecordingThread(char* buffer);
     void runRenderingThread(char* buffer);
 
 //private functions
