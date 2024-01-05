@@ -49,6 +49,5 @@ public slots:
 signals:
 	void bufferFilled();
 
-
 	//default format for audio is CD quality (441khz, 16bit sample size, 2 channels) 
 };

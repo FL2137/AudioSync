@@ -63,7 +63,6 @@ void AudioCapture::win32AudioCapture(QByteArray* buffer) {
 	int bufferSize = buffer->size();
 
 	while (!finish) {
-		//Sleep(hnsActualDuration / 10000 / 2);
 
 		hr = captureClient->GetNextPacketSize(&packetLength);
 
@@ -81,18 +80,6 @@ void AudioCapture::win32AudioCapture(QByteArray* buffer) {
 				server->sendDatagram(buffer, QHostAddress("192.168.1.101"), 3002);
 			}
 			else {
-				//dividing buffer
-				/*for (int div = 0; div < bytesToWrite; div += 252) {
-					std::memcpy(buffer->data(), data + div, bytesToWrite / 7);
-					server->sendDatagram(buffer, QHostAddress("192.168.1.109"), 3002);
-				}*/
-
-				//not dividing buffer
-				/*FILE* fptr = fopen("logSERVER.txt", "w");
-				fwrite(data, sizeof(char), bytesToWrite, fptr);
-				finish = true;
-				fclose(fptr);
-				delete fptr;*/
 				qDebug() << "bytesToWrite: " << bytesToWrite;
 				server->sendDatagram((char*)data, bytesToWrite, QHostAddress("192.168.1.101"), 3002);
 			}

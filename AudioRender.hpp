@@ -27,7 +27,7 @@
 #include <comdef.h>
 #include <mmeapi.h>
 
-
+#define BUFFER_SIZE 1764
 
 class AudioRender : public QObject {
 

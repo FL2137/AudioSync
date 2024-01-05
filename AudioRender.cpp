@@ -52,7 +52,6 @@ void AudioRender::handleStateChange(QAudio::State state) {
 	}
 }
 
-
 void AudioRender::win32Render(char *buffer) {
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
 	IMMDeviceEnumerator* enumerator;
@@ -73,7 +72,7 @@ void AudioRender::win32Render(char *buffer) {
 	format.nBlockAlign = (format.nChannels * format.wBitsPerSample) / 8;
 	format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
 
-	REFERENCE_TIME requestedBufferDuration = 10000000 * 2;
+	REFERENCE_TIME requestedBufferDuration = 10000000;
 
 	DWORD streamFlags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
 	hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, requestedBufferDuration, 0, &format, nullptr);
@@ -85,8 +84,9 @@ void AudioRender::win32Render(char *buffer) {
 	uint32_t bufferSizeFrames = 0;
 	audioClient->GetBufferSize(&bufferSizeFrames);
 
-	audioClient->Start();
+	REFERENCE_TIME hnsActualDuration = (double)10000000 * bufferSizeFrames / format.nSamplesPerSec;
 
+	audioClient->Start();
 
 	double playbackTime = 0.0;
 	const float TONE_HZ = 440;
@@ -96,48 +96,44 @@ void AudioRender::win32Render(char *buffer) {
 	bool run = true;
 	while (run) {
 
+		//Sleep((DWORD)(hnsActualDuration / 10000 / 2));
+
 		uint32_t bufferPadding;
 		audioClient->GetCurrentPadding(&bufferPadding);
 
 		uint32_t soundBufferLatency = bufferSizeFrames / 50;
 		uint32_t nFramesToWrite = soundBufferLatency - bufferPadding;
-		qDebug() << "Padding: " << bufferPadding << "   bufferSizeFrames: " << bufferSizeFrames << "  bufferLatency: " << soundBufferLatency << "  nFramesToWrite: " << nFramesToWrite;
 
+		//qDebug() << "Padding: " << bufferPadding << "   bufferSizeFrames: " << bufferSizeFrames << "  bufferLatency: " << soundBufferLatency << "  nFramesToWrite: " << nFramesToWrite;
 
-		int16_t* renderBuffer;
+		uint16_t* renderBuffer;
 		
-		renderClient->GetBuffer(1764, (BYTE**)(&renderBuffer));
+		renderClient->GetBuffer(nFramesToWrite, (BYTE**)(&renderBuffer));
 		//qDebug() << "nframes to write: " << nFramesToWrite;
 		
 		samplesIterator = 0;
 
 		qDebug() << "framesToWrite: " << nFramesToWrite;
 			
-		if (nFramesToWrite != 0) {
-			mutex->lock();
-			for (uint32_t frameI = 0; frameI < 1764; ++frameI) {
+		mutex->lock();
+		for (uint32_t frameI = 0; frameI < nFramesToWrite; ++frameI) {
 
-				*renderBuffer++ = buffer->data()[samplesIterator] | (buffer->data()[samplesIterator + 1] << 8);
-				*renderBuffer++ = buffer->data()[samplesIterator] | (buffer->data()[samplesIterator + 1] << 8);
+			*renderBuffer++ = buffer[samplesIterator] | (buffer[samplesIterator + 1] << 8);
+			*renderBuffer++ = buffer[samplesIterator] | (buffer[samplesIterator + 1] << 8);
 
-				//*renderBuffer++ = buffer->data()[samplesIterator++];
+			//*renderBuffer++ = buffer->data()[samplesIterator++];
 
-				samplesIterator += 4;
+			samplesIterator += 4;
 
-				if (samplesIterator >= buffer->size())
-					samplesIterator = 0;
+			if (samplesIterator >= BUFFER_SIZE)
+				samplesIterator = 0;
 
-				samplesIterator %= buffer->size();
-			}
-			mutex->unlock();
+			samplesIterator %= BUFFER_SIZE;
 		}
-		else {
-			//fill renderBuffer with 0?
-		}
+		mutex->unlock();
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 	}
-
 
 	//uninitialize COM drivers
 	CoUninitialize();

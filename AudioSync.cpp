@@ -15,10 +15,8 @@ AudioSync::AudioSync(QWidget *parent)
     ui.portLineEdit->setText("3002");
     ui.hostLineEdit->setText("192.168.1.109");
 
-
     capturer = new AudioCapture(&captureMutex);
     renderer = new AudioRender(&renderMutex);
-
 
     capturer->moveToThread(&captureThread);
     connect(ui.recordButton, &QPushButton::clicked, this, &AudioSync::startRecording);

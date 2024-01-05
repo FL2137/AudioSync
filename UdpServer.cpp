@@ -17,7 +17,6 @@ UdpServer::UdpServer(char *targetBuffer, QMutex *renderMutex, qint16 port, const
 	qDebug() << "Socket.State: " << socket->state() << "   Socket.Port: " << socket->localPort() << "  Socket.Addr: " << socket->localAddress();
 }
 
-
 void UdpServer::readPendingData() {
 	static int iterator = 0;
 
@@ -25,33 +24,17 @@ void UdpServer::readPendingData() {
 		
 		QNetworkDatagram datagram = socket->receiveDatagram();
 		
-		/*qDebug() << "data: " << datagram.data().size();
-		FILE* fptr = fopen("logClient.txt", "w");
-		fwrite(datagram.data().data(), sizeof(char), datagram.data().size(), fptr);
-		fclose(fptr);
-		delete fptr;*/
-
-
-		//qDebug() << "UdpServer.Mutex::lock()";
-		
 		renderMutex->lock();
 		std::memcpy(targetBuffer, datagram.data().data(), 1764);
 		renderMutex->unlock();
-		
-		//qDebug() << "UdpServer.Mutex::unlock()";
-
 	}
 }
-
 
 void UdpServer::sendDatagram(QByteArray *data, const QHostAddress &address, qint16 port) {
 	try {
 		auto ret = socket->writeDatagram(*data, address, port);
 		if (ret == -1) {
 			qDebug() << socket->errorString();
-		}
-		else {
-			//qDebug() << "sent " << ret;
 		}
 	}
 	catch (const std::exception e) {
@@ -65,11 +48,7 @@ void UdpServer::sendDatagram(char* data, qint64 size, const QHostAddress &addres
 	if (ret == -1) {
 		qWarning() << socket->errorString();
 	}
-	else {
-		//ok;
-	}
 }
-
 
 QList<QString> UdpServer::listLocalAddresses() {
 	QNetworkInterface qNetInterface;

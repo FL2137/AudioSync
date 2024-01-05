@@ -11,6 +11,8 @@
 #include <qnetworkinterface.h>
 #include <qmutex.h>
 
+#define BUFFER_SIZE 1764
+
 class UdpServer : public QObject {
 	Q_OBJECT
 public:
