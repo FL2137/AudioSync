@@ -35,7 +35,7 @@ public slots:
     void signalFilled();
 
 signals:
-    void runRecordingThread(char* buffer);
+    void runRecordingThread();
     void runRenderingThread(char* buffer);
 
 //private functions

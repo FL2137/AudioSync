@@ -2,10 +2,10 @@
 #include <iostream>
 
 
-void AudioCapture::win32AudioCapture(char* buffer) {
+void AudioCapture::win32AudioCapture() {
 	HRESULT hr;
 	qDebug() << "winAudioCapture()";
-	hr = CoInitialize(0);
+	hr = CoInitializeEx(0, COINIT_MULTITHREADED);
 
 	REFERENCE_TIME hnsRequestedDuration = 10000000;
 	REFERENCE_TIME hnsActualDuration;
@@ -21,8 +21,6 @@ void AudioCapture::win32AudioCapture(char* buffer) {
 
 	uint8_t* data;
 	DWORD flags;
-
-	int bufferIter = 0;
 
 	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&enumerator);
 
@@ -60,14 +58,13 @@ void AudioCapture::win32AudioCapture(char* buffer) {
 
 	bool finish = false;
 
-	int bufferSize = buffer->size();
-
 	while (!finish) {
 
 		hr = captureClient->GetNextPacketSize(&packetLength);
 
 		while (packetLength != 0) {
 			hr = captureClient->GetBuffer(&data, &nFramesAvailable, &flags, NULL, NULL);
+			qDebug() << "nFrames: " << nFramesAvailable;
 			if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
 				data = NULL;
 			
@@ -76,13 +73,11 @@ void AudioCapture::win32AudioCapture(char* buffer) {
 
 			if (data == NULL) {
 				qDebug() << "data NULL";
-				buffer->fill(0);
-				server->sendDatagram(buffer, QHostAddress("192.168.1.105"), 3002);
 			}
 			else {
 				qDebug() << "bytesToWrite: " << bytesToWrite;
-				server->sendDatagram((char*)data, bytesToWrite, QHostAddress("192.168.1.105"), 3002);
-			}
+				server->sendDatagram((char*)data, bytesToWrite, QHostAddress("192.168.1.109"), 3002);
+			} 
 			hr = captureClient->ReleaseBuffer(nFramesAvailable);
 			hr = captureClient->GetNextPacketSize(&packetLength);
 		}
