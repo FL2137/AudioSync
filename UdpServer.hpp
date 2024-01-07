@@ -10,6 +10,7 @@
 #include <qlist.h>
 #include <qnetworkinterface.h>
 #include <qmutex.h>
+#include <qsemaphore.h>
 
 #define BUFFER_SIZE 1764
 
@@ -17,7 +18,9 @@ class UdpServer : public QObject {
 	Q_OBJECT
 public:
 
-	UdpServer() {}
+	UdpServer() {
+		
+	}
 
 	UdpServer(char *targetBuffer, QMutex *renderMutex, qint16 port, const QString &address = "");
 
@@ -27,6 +30,9 @@ public:
 
 	static QList<QString> listLocalAddresses();
 
+	void setSemaphores(QSemaphore* renderSem, QSemaphore* acquireSem);
+
+
 public slots: 
 	void readPendingData();
 
@@ -35,4 +41,8 @@ private:
 	char* targetBuffer = nullptr;
 
 	QMutex* renderMutex;
+
+public:
+
+	QSemaphore* acquireSemaphore, *renderSemaphore;
 };

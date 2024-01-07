@@ -27,7 +27,7 @@
 #include <comdef.h>
 #include <mmeapi.h>
 
-#define BUFFER_SIZE 1236
+#define BUFFER_SIZE 1764
 
 class AudioRender : public QObject {
 
@@ -37,9 +37,12 @@ public:
 
 	AudioRender(QMutex *mutex) {
 		this->mutex = mutex;
+		this->acquireSemaphore = new QSemaphore();
+		this->renderSemaphore = new QSemaphore();
 	}
 
 	QMutex *mutex;
+	QSemaphore* acquireSemaphore, *renderSemaphore;
 
 public slots:
 	void render(QByteArray* buffer);

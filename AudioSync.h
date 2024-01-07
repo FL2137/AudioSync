@@ -60,5 +60,4 @@ private:
     QMutex renderMutex;
 
     mutable QString localAddress = "";
-
 };

@@ -106,16 +106,15 @@ void AudioRender::win32Render(char *buffer) {
 
 		//qDebug() << "Padding: " << bufferPadding << "   bufferSizeFrames: " << bufferSizeFrames << "  bufferLatency: " << soundBufferLatency << "  nFramesToWrite: " << nFramesToWrite;
 
-		uint16_t* renderBuffer;
+		int16_t* renderBuffer;
 		
 		renderClient->GetBuffer(nFramesToWrite, (BYTE**)(&renderBuffer));
-		//qDebug() << "nframes to write: " << nFramesToWrite;
 		
 		samplesIterator = 0;
 
-		qDebug() << "framesToWrite: " << nFramesToWrite;
 			
-		mutex->lock();
+		//mutex->lock();
+		renderSemaphore->acquire();
 		for (uint32_t frameI = 0; frameI < nFramesToWrite; ++frameI) {
 
 			*renderBuffer++ = buffer[samplesIterator] | (buffer[samplesIterator + 1] << 8);
@@ -130,7 +129,8 @@ void AudioRender::win32Render(char *buffer) {
 
 			samplesIterator %= BUFFER_SIZE;
 		}
-		mutex->unlock();
+		acquireSemaphore->release();
+		//mutex->unlock();
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 	}
