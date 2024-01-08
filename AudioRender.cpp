@@ -52,6 +52,31 @@ void AudioRender::handleStateChange(QAudio::State state) {
 	}
 }
 
+void AudioRender::changeVolume(int newVolume) {
+	IPart *ipart;
+	IAudioVolumeLevel* volumeControl = nullptr;
+
+	IPartsList ;
+
+
+	HRESULT hr = ipart->Activate(CLSCTX_ALL, __uuidof(IAudioVolumeLevel), (void**)&volumeControl);
+	if (hr != S_OK) {
+		_com_error _comerr(hr);
+		qWarning() << _comerr.ErrorMessage();
+	}
+
+	UINT channels;
+
+	volumeControl->GetChannelCount(&channels);
+
+	qDebug() << "audioChannels: " << channels;
+
+	volumeControl->Release();
+	ipart->Release();
+}
+
+
+
 void AudioRender::win32Render(char *buffer) {
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
 	IMMDeviceEnumerator* enumerator;

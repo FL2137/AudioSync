@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <comdef.h>
 #include <mmeapi.h>
+#include <devicetopology.h>
 
 #define BUFFER_SIZE 1764
 
@@ -47,6 +48,8 @@ public:
 public slots:
 	void render(QByteArray* buffer);
 	void win32Render(char *buffer);
+	void changeVolume(int newVolume);
+
 
 signals:
 	void bufferRendered();
