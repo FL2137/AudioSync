@@ -40,6 +40,8 @@ public:
 		this->mutex = mutex;
 		this->acquireSemaphore = new QSemaphore();
 		this->renderSemaphore = new QSemaphore();
+
+		initializeWASAPI();
 	}
 
 	QMutex *mutex;
@@ -57,9 +59,16 @@ signals:
 private:
 	void handleStateChange(QAudio::State state);
 
+	void initializeWASAPI();
+
 private:
 	QAudioSink* sink;
 	QBuffer* qbuffer;
 	QFile* file;
+
+	IMMDevice* device = nullptr;
+
+	void hrHandler(HRESULT hr);
+
 	//default format for audio is CD quality (441khz, 16bit sample size, 2 channels) 
 };

@@ -1,4 +1,6 @@
 #include "AudioRender.hpp"
+#include <iostream>
+#include <mutex>
 
 void AudioRender::render(QByteArray *buffer) {
 
@@ -56,14 +58,22 @@ void AudioRender::changeVolume(int newVolume) {
 	IPart *ipart;
 	IAudioVolumeLevel* volumeControl = nullptr;
 
-	IPartsList ;
+	IConnector* endCon = NULL;
+	IConnector* hwCon = NULL;
 
+	IDeviceTopology* devtop;
+	this->device->Activate(__uuidof(IDeviceTopology), CLSCTX_ALL, NULL, (void**)&devtop);
+	
+	devtop->GetConnector(0, &endCon);
+	endCon->GetConnectedTo(&hwCon);
 
+	hwCon->QueryInterface(__uuidof(IPart), (void**)&ipart);
+
+	IDeviceTopology* interfaceTop = nullptr;
+	ipart->GetTopologyObject(&interfaceTop);
+	
 	HRESULT hr = ipart->Activate(CLSCTX_ALL, __uuidof(IAudioVolumeLevel), (void**)&volumeControl);
-	if (hr != S_OK) {
-		_com_error _comerr(hr);
-		qWarning() << _comerr.ErrorMessage();
-	}
+	hrHandler(hr);
 
 	UINT channels;
 
@@ -73,21 +83,27 @@ void AudioRender::changeVolume(int newVolume) {
 
 	volumeControl->Release();
 	ipart->Release();
-}
-
+	endCon->Release();
+	hwCon->Release();
+	devtop->Release();
+}	
 
 
 void AudioRender::win32Render(char *buffer) {
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
-	IMMDeviceEnumerator* enumerator;
-	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&enumerator);
+
+	IMMDeviceEnumerator* deviceEnum = nullptr;
 	IMMDevice* device;
-	hr = enumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device);
-	enumerator->Release();
+	//audio output is still defaulted to the currently playing one
+	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&deviceEnum);
+	hr = deviceEnum->GetDefaultAudioEndpoint(eRender, eConsole, &device);
+	deviceEnum->Release();
+
 
 	IAudioClient* audioClient;
 	hr = device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&audioClient);
 	device->Release();
+
 
 	WAVEFORMATEX format = {};
 	format.wFormatTag = WAVE_FORMAT_PCM;
@@ -138,8 +154,8 @@ void AudioRender::win32Render(char *buffer) {
 		samplesIterator = 0;
 
 			
-		//mutex->lock();
-		renderSemaphore->acquire();
+		//renderSemaphore->acquire();
+		mutex->lock();
 		for (uint32_t frameI = 0; frameI < nFramesToWrite; ++frameI) {
 
 			*renderBuffer++ = buffer[samplesIterator] | (buffer[samplesIterator + 1] << 8);
@@ -154,8 +170,8 @@ void AudioRender::win32Render(char *buffer) {
 
 			samplesIterator %= BUFFER_SIZE;
 		}
-		acquireSemaphore->release();
-		//mutex->unlock();
+		//acquireSemaphore->release();
+		mutex->unlock();
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 	}
@@ -166,4 +182,24 @@ void AudioRender::win32Render(char *buffer) {
 	audioClient->Stop();
 	audioClient->Release();
 	renderClient->Release();
+}
+
+
+void AudioRender::initializeWASAPI() {
+	
+	HRESULT hr;
+	IMMDeviceEnumerator* deviceEnum = nullptr;
+	
+	//audio output is still defaulted to the currently playing one
+	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&deviceEnum);
+	hr = deviceEnum->GetDefaultAudioEndpoint(eRender, eConsole, &device);
+	deviceEnum->Release();
+
+}
+
+void AudioRender::hrHandler(HRESULT hr) {
+	if (hr != S_OK) {
+		_com_error _comerr(hr);
+		std::wcout << "Error: " << _comerr.ErrorMessage() << std::endl;
+	}
 }
