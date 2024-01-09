@@ -40,7 +40,6 @@ public:
 		this->mutex = mutex;
 		this->acquireSemaphore = new QSemaphore();
 		this->renderSemaphore = new QSemaphore();
-
 		initializeWASAPI();
 	}
 

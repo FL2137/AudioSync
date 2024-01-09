@@ -187,7 +187,7 @@ void AudioRender::win32Render(char *buffer) {
 
 void AudioRender::initializeWASAPI() {
 	
-	HRESULT hr;
+	HRESULT hr; 
 	IMMDeviceEnumerator* deviceEnum = nullptr;
 	
 	//audio output is still defaulted to the currently playing one
