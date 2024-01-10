@@ -58,6 +58,7 @@ private:
 
     QMutex captureMutex;
     QMutex renderMutex;
+    QMutex serverMutex;
 
     mutable QString localAddress = "";
 };

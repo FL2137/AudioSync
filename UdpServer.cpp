@@ -1,10 +1,11 @@
 #include "UdpServer.hpp"
 
 
-UdpServer::UdpServer(char *targetBuffer, QMutex *renderMutex, qint16 port, const QString &address) {
+UdpServer::UdpServer(char *targetBuffer, QMutex *renderMutex, QMutex* serverMutex, qint16 port, const QString &address) {
 
 	this->targetBuffer = targetBuffer;
 	this->renderMutex = renderMutex;
+	this->serverMutex = serverMutex;
 
 	socket = new QUdpSocket(this);
 
@@ -23,14 +24,9 @@ void UdpServer::readPendingData() {
 	while (socket->hasPendingDatagrams()) {
 		
 		QNetworkDatagram datagram = socket->receiveDatagram();
-	
-		serverSem->wait();
+		renderMutex->lock();
 		std::memcpy(targetBuffer, datagram.data().data(), BUFFER_SIZE);
-		renderSem->raise();
-		
-		//	qDebug() << "read: " << datagram.data().size();
-		
-		
+		renderMutex->unlock();
 	}
 }
 

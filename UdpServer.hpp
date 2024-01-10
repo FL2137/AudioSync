@@ -22,7 +22,7 @@ public:
 		
 	}
 
-	UdpServer(char *targetBuffer, QMutex *renderMutex, qint16 port, const QString &address = "");
+	UdpServer(char *targetBuffer, QMutex *renderMutex, QMutex *serverMutex, qint16 port, const QString &address = "");
 
 	void sendDatagram(QByteArray* data, const QHostAddress& address, qint16 port);
 	
@@ -41,8 +41,9 @@ private:
 	char* targetBuffer = nullptr;
 
 	QMutex* renderMutex;
+	QMutex* serverMutex;
 
 public:
-
+	bool runSync = false;
 	Semaphore* serverSem, *renderSem;
 };

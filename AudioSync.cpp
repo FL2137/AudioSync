@@ -13,7 +13,7 @@ AudioSync::AudioSync(QWidget *parent)
     ui.hostLineEdit->setText("192.168.1.109");
 
     capturer = new AudioCapture(&captureMutex);
-    renderer = new AudioRender(&renderMutex);
+    renderer = new AudioRender(&renderMutex, &serverMutex);
 
 
 
@@ -29,7 +29,7 @@ AudioSync::AudioSync(QWidget *parent)
     renderThread.start();
 
     connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
-        server = new UdpServer(renderBuffer, &renderMutex, ui.portLineEdit->text().toShort(), localAddress);
+        server = new UdpServer(renderBuffer, &renderMutex, &serverMutex, ui.portLineEdit->text().toShort(), localAddress);
         server->setSemaphores(renderer->renderSem, renderer->serverSem);
         capturer->setServer(server);
         server->readPendingData();
@@ -90,6 +90,8 @@ void AudioSync::listAudioDevices() {
 //slots and signals
 void AudioSync::startPlaying() {
     emit runRenderingThread(renderBuffer);
+    server->runSync = true;
+    server->readPendingData();
 }
 
 void AudioSync::startRecording() {
