@@ -23,13 +23,14 @@ void UdpServer::readPendingData() {
 	while (socket->hasPendingDatagrams()) {
 		
 		QNetworkDatagram datagram = socket->receiveDatagram();
+	
+		serverSem->wait();
+		std::memcpy(targetBuffer, datagram.data().data(), BUFFER_SIZE);
+		renderSem->raise();
 		
-		//renderMutex->lock();
-		acquireSemaphore->acquire();
-		std::memcpy(targetBuffer, datagram.data().data(), 1764);
-		qDebug() << "read: " << datagram.data().size();
-		renderSemaphore->release();
-		//renderMutex->unlock();
+		//	qDebug() << "read: " << datagram.data().size();
+		
+		
 	}
 }
 
@@ -64,7 +65,7 @@ QList<QString> UdpServer::listLocalAddresses() {
 	return list;
 }
 
-void UdpServer::setSemaphores(QSemaphore* renderSem, QSemaphore* acquireSem) {
-	this->acquireSemaphore = acquireSem;
-	this->renderSemaphore = renderSem;
+void UdpServer::setSemaphores(Semaphore* renderSem, Semaphore* acquireSem) {
+	this->serverSem = acquireSem;
+	this->renderSem = renderSem;
 }

@@ -10,7 +10,7 @@
 #include <qlist.h>
 #include <qnetworkinterface.h>
 #include <qmutex.h>
-#include <qsemaphore.h>
+#include "Semaphore.hpp"
 
 #define BUFFER_SIZE 1764
 
@@ -30,7 +30,7 @@ public:
 
 	static QList<QString> listLocalAddresses();
 
-	void setSemaphores(QSemaphore* renderSem, QSemaphore* acquireSem);
+	void setSemaphores(Semaphore* renderSem, Semaphore* acquireSem);
 
 
 public slots: 
@@ -44,5 +44,5 @@ private:
 
 public:
 
-	QSemaphore* acquireSemaphore, *renderSemaphore;
+	Semaphore* serverSem, *renderSem;
 };

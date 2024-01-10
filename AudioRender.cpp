@@ -154,8 +154,7 @@ void AudioRender::win32Render(char *buffer) {
 		samplesIterator = 0;
 
 			
-		//renderSemaphore->acquire();
-		mutex->lock();
+		renderSem->wait();
 		for (uint32_t frameI = 0; frameI < nFramesToWrite; ++frameI) {
 
 			*renderBuffer++ = buffer[samplesIterator] | (buffer[samplesIterator + 1] << 8);
@@ -170,8 +169,8 @@ void AudioRender::win32Render(char *buffer) {
 
 			samplesIterator %= BUFFER_SIZE;
 		}
-		//acquireSemaphore->release();
-		mutex->unlock();
+		serverSem->raise();
+
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 	}

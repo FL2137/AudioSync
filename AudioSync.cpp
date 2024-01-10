@@ -15,6 +15,8 @@ AudioSync::AudioSync(QWidget *parent)
     capturer = new AudioCapture(&captureMutex);
     renderer = new AudioRender(&renderMutex);
 
+
+
     capturer->moveToThread(&captureThread);
     connect(ui.recordButton, &QPushButton::clicked, this, &AudioSync::startRecording);
     connect(this, &AudioSync::runRecordingThread, capturer, &AudioCapture::win32AudioCapture);
@@ -28,7 +30,7 @@ AudioSync::AudioSync(QWidget *parent)
 
     connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
         server = new UdpServer(renderBuffer, &renderMutex, ui.portLineEdit->text().toShort(), localAddress);
-        server->setSemaphores(renderer->renderSemaphore, renderer->acquireSemaphore);
+        server->setSemaphores(renderer->renderSem, renderer->serverSem);
         capturer->setServer(server);
         server->readPendingData();
 

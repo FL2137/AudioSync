@@ -27,6 +27,7 @@
 #include <comdef.h>
 #include <mmeapi.h>
 #include <devicetopology.h>
+#include "Semaphore.hpp"
 
 #define BUFFER_SIZE 1764
 
@@ -38,13 +39,19 @@ public:
 
 	AudioRender(QMutex *mutex) {
 		this->mutex = mutex;
-		this->acquireSemaphore = new QSemaphore();
-		this->renderSemaphore = new QSemaphore();
+		renderSem = new Semaphore(0);
+		serverSem = new Semaphore(1);
+
 		initializeWASAPI();
 	}
 
+	~AudioRender() {
+		delete renderSem;
+		delete serverSem;
+	}
+
 	QMutex *mutex;
-	QSemaphore* acquireSemaphore, *renderSemaphore;
+	Semaphore* renderSem, *serverSem;
 
 public slots:
 	void render(QByteArray* buffer);
