@@ -37,10 +37,11 @@ class AudioRender : public QObject {
 
 public:
 
-	AudioRender(QMutex *mutex) {
-		this->mutex = mutex;
+	AudioRender(QMutex *renderMutex, QMutex* serverMutex) {
+		this->renderMutex = renderMutex;
+		this->serverMutex = serverMutex;
 		renderSem = new Semaphore(0);
-		serverSem = new Semaphore(1);
+		serverSem = new Semaphore(0);
 
 		initializeWASAPI();
 	}
@@ -50,7 +51,7 @@ public:
 		delete serverSem;
 	}
 
-	QMutex *mutex;
+	QMutex *renderMutex, *serverMutex;
 	Semaphore* renderSem, *serverSem;
 
 public slots:

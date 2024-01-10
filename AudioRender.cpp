@@ -25,10 +25,10 @@ void AudioRender::render(QByteArray *buffer) {
 	}
 
 
-	mutex->lock();
+	//mutex->lock();
 	qDebug() << "Renderer.Mutex::lock()";
 	sink->start(qbuffer);
-	mutex->unlock();
+	//mutex->unlock();
 	qDebug() << "Renderer.Mutex::unlock()";
 
 }
@@ -38,11 +38,11 @@ void AudioRender::handleStateChange(QAudio::State state) {
 	switch (state) {
 		case QAudio::State::IdleState: {
 			//audio data run out;
-			mutex->lock();
+			//mutex->lock();
 			qDebug() << "Renderer.Mutex::lock()";
 			qbuffer->seek(0);
 			sink->start(qbuffer);
-			mutex->unlock();
+			//mutex->unlock();
 			qDebug() << "Renderer.Mutex::unlock()";
 			break;
 		}
@@ -150,26 +150,14 @@ void AudioRender::win32Render(char *buffer) {
 		int16_t* renderBuffer;
 		
 		renderClient->GetBuffer(nFramesToWrite, (BYTE**)(&renderBuffer));
-		
 		samplesIterator = 0;
 
 			
-		renderSem->wait();
-		for (uint32_t frameI = 0; frameI < nFramesToWrite; ++frameI) {
+		int bytesToWrite = nFramesToWrite * format.nBlockAlign;
 
-			*renderBuffer++ = buffer[samplesIterator] | (buffer[samplesIterator + 1] << 8);
-			*renderBuffer++ = buffer[samplesIterator] | (buffer[samplesIterator + 1] << 8);
-
-			//*renderBuffer++ = buffer->data()[samplesIterator++];
-
-			samplesIterator += 4;
-
-			if (samplesIterator >= BUFFER_SIZE)
-				samplesIterator = 0;
-
-			samplesIterator %= BUFFER_SIZE;
-		}
-		serverSem->raise();
+		renderMutex->lock();
+		std::memcpy(renderBuffer, buffer, bytesToWrite);
+		renderMutex->unlock();
 
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
