@@ -54,73 +54,23 @@ void AudioRender::handleStateChange(QAudio::State state) {
 	}
 }
 
-void AudioRender::changeVolume(int newVolume) {
-	IPart *ipart;
-	IAudioVolumeLevel* volumeControl = nullptr;
-
-	IConnector* endCon = NULL;
-	IConnector* hwCon = NULL;
-
-	IDeviceTopology* devtop;
-	this->device->Activate(__uuidof(IDeviceTopology), CLSCTX_ALL, NULL, (void**)&devtop);
-	
-	devtop->GetConnector(0, &endCon);
-	endCon->GetConnectedTo(&hwCon);
-
-	hwCon->QueryInterface(__uuidof(IPart), (void**)&ipart);
-
-	IDeviceTopology* interfaceTop = nullptr;
-	ipart->GetTopologyObject(&interfaceTop);
-	
-	HRESULT hr = ipart->Activate(CLSCTX_ALL, __uuidof(IAudioVolumeLevel), (void**)&volumeControl);
-	hrHandler(hr);
-
-	UINT channels;
-
-	volumeControl->GetChannelCount(&channels);
-
-	qDebug() << "audioChannels: " << channels;
-
-	volumeControl->Release();
-	ipart->Release();
-	endCon->Release();
-	hwCon->Release();
-	devtop->Release();
+float AudioRender::changeVolume(float newVolume) {
+	CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
+	ISimpleAudioVolume* audioVolume;
+	audioClient->GetService(__uuidof(ISimpleAudioVolume), reinterpret_cast<void**>(&audioVolume));
+	float value;
+	audioVolume->SetMasterVolume(((float)newVolume/10.f), NULL);
+	audioVolume->GetMasterVolume(&value);
+	qDebug() << "Setting Volume to: " << value;
+	audioVolume->Release();
+	return value * 10;
+	CoUninitialize();
 }	
+
 
 
 void AudioRender::win32Render(char *buffer) {
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
-
-	IMMDeviceEnumerator* deviceEnum = nullptr;
-	IMMDevice* device;
-	//audio output is still defaulted to the currently playing one
-	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&deviceEnum);
-	hr = deviceEnum->GetDefaultAudioEndpoint(eRender, eConsole, &device);
-	deviceEnum->Release();
-
-
-	IAudioClient* audioClient;
-	hr = device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&audioClient);
-	device->Release();
-
-
-	WAVEFORMATEX format = {};
-	format.wFormatTag = WAVE_FORMAT_PCM;
-	format.wBitsPerSample = 16;
-	format.nChannels = 2;
-	format.nSamplesPerSec = 44100;
-	format.nBlockAlign = (format.nChannels * format.wBitsPerSample) / 8;
-	format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
-
-	REFERENCE_TIME requestedBufferDuration = 10000000;
-
-	DWORD streamFlags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
-	hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, requestedBufferDuration, 0, &format, nullptr);
-
-	IAudioRenderClient* renderClient;
-
-	hr = audioClient->GetService(__uuidof(IAudioRenderClient), (LPVOID*)(&renderClient));
 
 	uint32_t bufferSizeFrames = 0;
 	audioClient->GetBufferSize(&bufferSizeFrames);
@@ -152,7 +102,6 @@ void AudioRender::win32Render(char *buffer) {
 		renderClient->GetBuffer(nFramesToWrite, (BYTE**)(&renderBuffer));
 		samplesIterator = 0;
 
-			
 		int bytesToWrite = nFramesToWrite * format.nBlockAlign;
 
 		renderMutex->lock();
@@ -162,31 +111,44 @@ void AudioRender::win32Render(char *buffer) {
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 	}
-
+	audioClient->Stop();
 	//uninitialize COM drivers
 	CoUninitialize();
-
-	audioClient->Stop();
-	audioClient->Release();
-	renderClient->Release();
 }
 
 
 void AudioRender::initializeWASAPI() {
-	
+	CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
 	HRESULT hr; 
 	IMMDeviceEnumerator* deviceEnum = nullptr;
 	
 	//audio output is still defaulted to the currently playing one
 	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&deviceEnum);
 	hr = deviceEnum->GetDefaultAudioEndpoint(eRender, eConsole, &device);
-	deviceEnum->Release();
+	IMMDeviceCollection* col;
+	deviceEnum->EnumAudioEndpoints(eRender, eConsole, &col);
 
+	deviceEnum->Release();
+	hr = device->Activate(__uuidof(IAudioClient3), CLSCTX_ALL, nullptr, (void**)&audioClient);
+
+	format.wFormatTag = WAVE_FORMAT_PCM;
+	format.wBitsPerSample = 16;
+	format.nChannels = 2;
+	format.nSamplesPerSec = 44100;
+	format.nBlockAlign = (format.nChannels * format.wBitsPerSample) / 8;
+	format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
+
+	REFERENCE_TIME requestedBufferDuration = 10000000;
+
+	DWORD streamFlags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
+	hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, requestedBufferDuration, 0, &format, nullptr);
+
+	CoUninitialize();
 }
 
 void AudioRender::hrHandler(HRESULT hr) {
 	if (hr != S_OK) {
 		_com_error _comerr(hr);
-		std::wcout << "Error: " << _comerr.ErrorMessage() << std::endl;
+		std::cout << "Error: " << (char*)_comerr.ErrorMessage() << std::endl;
 	}
 }

@@ -49,6 +49,13 @@ public:
 	~AudioRender() {
 		delete renderSem;
 		delete serverSem;
+
+		audioClient->Release();
+
+		if(renderClient)
+			renderClient->Release();
+		
+		device->Release();
 	}
 
 	QMutex *renderMutex, *serverMutex;
@@ -57,7 +64,7 @@ public:
 public slots:
 	void render(QByteArray* buffer);
 	void win32Render(char *buffer);
-	void changeVolume(int newVolume);
+	float changeVolume(float newVolume);
 
 
 signals:
@@ -74,6 +81,10 @@ private:
 	QFile* file;
 
 	IMMDevice* device = nullptr;
+	IAudioClient3* audioClient = nullptr;
+	IAudioRenderClient* renderClient = nullptr;
+	WAVEFORMATEX format = {};
+
 
 	void hrHandler(HRESULT hr);
 
