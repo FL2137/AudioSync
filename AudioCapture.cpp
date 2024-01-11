@@ -31,14 +31,6 @@ void AudioCapture::win32AudioCapture() {
 
 	hrHandler(hr);
 
-	if (captureClient == nullptr) {
-		qDebug() << "KURWAOINWAOIPGNAIOPNGAWOINMGIOKAWQMGiokMJAWG";
-	}
-	else {
-		qDebug() << "AUDIOCLIENT not NULLPTR";
-	}
-
-
 
 	hnsActualDuration = (double)10000000 * bufferFrameCount / format->nSamplesPerSec;
 	audioClient->Start();
