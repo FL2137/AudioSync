@@ -1,4 +1,5 @@
 #pragma once
+#define USE_MATH_DEFINES
 #define WIN32_LEAN_AND_MEAN
 
 #include "UdpServer.hpp"
@@ -9,6 +10,7 @@
 #include <qmutex.h>
 
 #include <cstdio>
+#include <math.h>
 
 #include <Windows.h>
 #include <mmdeviceapi.h>
@@ -33,15 +35,12 @@ public:
 
 	AudioCapture(QMutex* mutex) {
 		this->mutex = mutex;
+		initWASAPI();
 	}
 
 	void setServer(UdpServer* server) {
 		this->server = server;
 	}
-
-private:
-	UdpServer* server = nullptr;
-	QMutex *mutex = nullptr;
 
 public slots:
 	void win32AudioCapture();
@@ -50,4 +49,25 @@ signals:
 	void bufferFilled();
 
 	//default format for audio is CD quality (441khz, 16bit sample size, 2 channels) 
+
+//private functions
+private:
+
+	void initWASAPI();
+	void hrHandler(HRESULT hr);
+
+
+	//private variables
+private:
+	UdpServer* server = nullptr;
+	QMutex* mutex = nullptr;
+
+
+	//wasapi interfaces
+	IMMDevice* device = nullptr;
+	IMMDeviceCollection* deviceList = nullptr;
+	IAudioClient3* audioClient = nullptr;
+	//IAudioCaptureClient* captureClient = nullptr;
+
+	WAVEFORMATEX* format = nullptr;
 };
