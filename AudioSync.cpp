@@ -15,8 +15,6 @@ AudioSync::AudioSync(QWidget *parent)
     capturer = new AudioCapture(&captureMutex);
     renderer = new AudioRender(&renderMutex, &serverMutex);
 
-
-
     capturer->moveToThread(&captureThread);
     connect(ui.recordButton, &QPushButton::clicked, this, &AudioSync::startRecording);
     connect(this, &AudioSync::runRecordingThread, capturer, &AudioCapture::win32AudioCapture);
@@ -44,10 +42,17 @@ AudioSync::AudioSync(QWidget *parent)
 
 
 void AudioSync::uiConnects() {
+    //connect list of IP addresses
     connect(ui.addressList, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
         qDebug() << "Address set!";
         localAddress = item->text();
         qDebug() << localAddress;
+    });
+
+    //connect dial to volume function and "LCD" display
+    connect(ui.volumeDial, &QDial::valueChanged, this, [this]() {
+        ui.lcdVolume->display(ui.volumeDial->value());
+        renderer->changeVolume(ui.volumeDial->value());
     });
 }
 
@@ -67,25 +72,6 @@ AudioSync::~AudioSync() {
 
 //functions
 
-void AudioSync::listAudioDevices() {
-    auto deviceList = QMediaDevices::audioOutputs();
-    for (auto& device : deviceList) {
-        qDebug() << device.description();
-        
-        ui.devicesList->addItem(device.description());
-
-        AudioFormat af(device);
-        QAudioFormat defaultFormat;
-        defaultFormat.setSampleRate(44100);
-        defaultFormat.setSampleFormat(QAudioFormat::Int16);
-        defaultFormat.setChannelCount(2);
-        if (device.isFormatSupported(defaultFormat)) {
-            qDebug() << "default format supported";
-        }
-        else
-            qDebug() << "default format NOT supported";
-    }
-}
 
 //slots and signals
 void AudioSync::startPlaying() {
@@ -98,7 +84,3 @@ void AudioSync::startRecording() {
     emit runRecordingThread();
 }
 
-void AudioSync::signalFilled() { 
-    QHostAddress addr("192.168.1.109");
-    server->sendDatagram(&this->captureBuffer, addr, 3002);
-}

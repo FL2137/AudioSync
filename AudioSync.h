@@ -17,6 +17,8 @@
 #include <qlistwidget.h>
 #include <qlistview.h>
 #include <qstyle.h>
+#include <qdial.h>
+#include <qlcdnumber.h>
 
 class AudioSync : public QMainWindow
 {
@@ -25,14 +27,11 @@ class AudioSync : public QMainWindow
 public:
     AudioSync(QWidget *parent = nullptr);
     ~AudioSync();
-    QByteArray captureBuffer;
-
-    char* renderBuffer;
+    
 
 public slots:
     void startRecording();
     void startPlaying();
-    void signalFilled();
 
 signals:
     void runRecordingThread();
@@ -40,7 +39,6 @@ signals:
 
 //private functions
 private:
-    void listAudioDevices();
 
     void uiConnects();
 
@@ -61,4 +59,11 @@ private:
     QMutex serverMutex;
 
     mutable QString localAddress = "";
+
+//public variables
+public:
+    QByteArray captureBuffer;
+    char* renderBuffer;
+
+
 };
