@@ -44,9 +44,12 @@ void UdpServer::sendDatagram(QByteArray *data, const QHostAddress &address, qint
 
 void UdpServer::sendDatagram(char* data, qint64 size, const QHostAddress &address, qint16 port) {
 
-	qint64 ret = socket->writeDatagram(data, size, address, port);
-	if (ret == -1) {
-		qWarning() << socket->errorString();
+	qint64 ret;
+	for (const QString& adddress : targetAddresses) {
+		ret = socket->writeDatagram(data, size, QHostAddress(address), port);
+		if (ret == -1) {
+			qWarning() << socket->errorString();
+		}
 	}
 }
 

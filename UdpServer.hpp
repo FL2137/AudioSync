@@ -43,7 +43,10 @@ private:
 	QMutex* renderMutex;
 	QMutex* serverMutex;
 
+	QList<QString> targetAddresses = {};
+
 public:
 	bool runSync = false;
 	Semaphore* serverSem, *renderSem;
+
 };

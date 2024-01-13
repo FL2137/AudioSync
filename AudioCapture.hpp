@@ -33,8 +33,7 @@ class AudioCapture : public QObject {
  
 public:
 
-	AudioCapture(QMutex* mutex) {
-		this->mutex = mutex;
+	AudioCapture() {
 		initWASAPI();
 	}
 
@@ -60,14 +59,12 @@ private:
 	//private variables
 private:
 	UdpServer* server = nullptr;
-	QMutex* mutex = nullptr;
-
 
 	//wasapi interfaces
 	IMMDevice* device = nullptr;
 	IMMDeviceCollection* deviceList = nullptr;
 	IAudioClient3* audioClient = nullptr;
-	//IAudioCaptureClient* captureClient = nullptr;
+	IAudioCaptureClient* captureClient;
 
 	WAVEFORMATEX* format = nullptr;
 };

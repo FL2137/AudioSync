@@ -14,23 +14,14 @@ void AudioCapture::win32AudioCapture() {
 	uint8_t* data;
 	DWORD flags;
 	
-	
-
 	int errorStop;
 	REFERENCE_TIME hnsRequestedDuration = 10000000;
 
 	unsigned int bufferSize;
 	audioClient->GetBufferSize(&bufferSize);
-	qDebug() << "bufferSize: " << bufferSize;
-
-	hrHandler(hr);
-
-	IAudioCaptureClient* captureClient;
 
 	hr = audioClient->GetService(__uuidof(IAudioCaptureClient), (void**)&captureClient);
-
 	hrHandler(hr);
-
 
 	hnsActualDuration = (double)10000000 * bufferFrameCount / format->nSamplesPerSec;
 	audioClient->Start();
