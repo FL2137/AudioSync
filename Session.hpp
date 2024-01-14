@@ -24,6 +24,8 @@ public:
 
 		renderBuffer = new char[BUFFERSIZE];
 	}
+
+	~Session();
 	
 	inline void setServer(UdpServer* _server) {
 		this->server = _server;

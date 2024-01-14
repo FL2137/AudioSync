@@ -2,6 +2,9 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_AudioSync.h"
+#include "ui_ConnectDialog.h"
+
+#include "InputDialog.hpp"
 
 #include "AudioHandler.hpp"
 #include "AudioRender.hpp"
@@ -32,6 +35,7 @@ public:
 public slots:
     void startRecording();
     void startPlaying();
+    void runConnectDialog();
 
 signals:
     void runRecordingThread();
@@ -45,6 +49,7 @@ private:
 //private variables
 private:
     Ui::AudioSyncClass ui;
+    Ui::ConnectDialog ui_connectDialog;
 
     AudioRender* renderer = nullptr;
     AudioCapture* capturer = nullptr;
@@ -65,5 +70,8 @@ public:
     QByteArray captureBuffer;
     char* renderBuffer;
 
+    ConnectDialogClass *connectDialog;
+    QString address;
+    int port;
 
 };
