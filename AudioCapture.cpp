@@ -47,7 +47,9 @@ void AudioCapture::win32AudioCapture() {
 			}
 			else {
 				//qDebug() << "bytesToWrite: " << bytesToWrite;
-				server->sendDatagram((char*)data, bytesToWrite, QHostAddress("192.168.1.101"), 3002);
+				for (const QHostAddress& address : targetedAdresses) {
+					server->sendDatagram((char*)data, bytesToWrite, address, 3002);
+				}
 			} 
 			hr = captureClient->ReleaseBuffer(nFramesAvailable);
 			hr = captureClient->GetNextPacketSize(&packetLength);
