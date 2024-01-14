@@ -27,6 +27,7 @@
 #include <mmeapi.h>
 
 
+
 class AudioCapture : public QObject {
 
 	Q_OBJECT
@@ -39,10 +40,6 @@ public:
 
 	inline void setServer(UdpServer* server) {
 		this->server = server;
-	}
-
-	inline void addTargetAddress(QString address) {
-		targetedAdresses.append(QHostAddress(address));
 	}
 
 public slots:
@@ -71,7 +68,5 @@ private:
 	IAudioCaptureClient* captureClient;
 
 	WAVEFORMATEX* format = nullptr;
-
-	QList<QHostAddress> targetedAdresses = {};
 
 };
