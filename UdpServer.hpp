@@ -37,6 +37,8 @@ public:
 
 	void setSemaphores(Semaphore* renderSem, Semaphore* acquireSem);
 
+	void addTargetedEndpoint(QString address, int port);
+
 
 public slots: 
 	void readPendingData();
@@ -48,7 +50,7 @@ private:
 	QMutex* renderMutex;
 	QMutex* serverMutex;
 
-	QList<Endpoint> targetAddresses = {};
+	QList<Endpoint> targetedEndpoints = {};
 
 public:
 	bool runSync = false;

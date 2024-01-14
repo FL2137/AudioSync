@@ -45,8 +45,8 @@ void UdpServer::sendDatagram(QByteArray *data, const QHostAddress &address, qint
 void UdpServer::sendDatagrams(char *data, qint64 size) {
 
 	qint64 ret;
-	for (const QString& adddress : targetAddresses) {
-		ret = socket->writeDatagram(data, size, QHostAddress(address), port);
+	for (const Endpoint& ep : targetedEndpoints) {
+		ret = socket->writeDatagram(data, size, ep.address, ep.port);
 		if (ret == -1) {
 			qWarning() << socket->errorString();
 		}
@@ -67,4 +67,8 @@ QList<QString> UdpServer::listLocalAddresses() {
 void UdpServer::setSemaphores(Semaphore* renderSem, Semaphore* acquireSem) {
 	this->serverSem = acquireSem;
 	this->renderSem = renderSem;
+}
+
+void UdpServer::addTargetedEndpoint(QString address, int port) {
+	targetedEndpoints.append({QHostAddress(address), port});
 }

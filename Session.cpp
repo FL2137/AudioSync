@@ -36,5 +36,5 @@ Session::~Session() {
 }
 
 void Session::appendTargetEndpoint(QString address, int port) {
-	server.addTargetedAddress(address, int port);
+	server.addTargetedAddress(address, port);
 }
