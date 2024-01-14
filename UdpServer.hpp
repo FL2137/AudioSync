@@ -14,6 +14,11 @@
 
 #define BUFFER_SIZE 1764
 
+struct Endpoint {
+	QHostAddress address;
+	int port;
+};
+
 class UdpServer : public QObject {
 	Q_OBJECT
 public:
@@ -26,7 +31,7 @@ public:
 
 	void sendDatagram(QByteArray* data, const QHostAddress& address, qint16 port);
 	
-	void sendDatagram(char* data, qint64 size, const QHostAddress& address, qint16 port);
+	void sendDatagrams(char* data, qint64 size);
 
 	static QList<QString> listLocalAddresses();
 
@@ -43,7 +48,7 @@ private:
 	QMutex* renderMutex;
 	QMutex* serverMutex;
 
-	QList<QString> targetAddresses = {};
+	QList<Endpoint> targetAddresses = {};
 
 public:
 	bool runSync = false;

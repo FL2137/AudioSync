@@ -42,7 +42,7 @@ void UdpServer::sendDatagram(QByteArray *data, const QHostAddress &address, qint
 	}
 }
 
-void UdpServer::sendDatagram(char* data, qint64 size, const QHostAddress &address, qint16 port) {
+void UdpServer::sendDatagrams(char *data, qint64 size) {
 
 	qint64 ret;
 	for (const QString& adddress : targetAddresses) {
