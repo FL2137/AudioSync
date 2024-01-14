@@ -18,7 +18,7 @@ class Session {
 
 public:
 
-	Session() {
+	Session(QString address, int port) {
 		audioCapture = new AudioCapture();
 		audioRender = new AudioRender(&renderMutex, &serverMutex);
 
@@ -30,6 +30,9 @@ public:
 	inline void setServer(UdpServer* _server) {
 		this->server = _server;
 	}
+	
+	inline char* getBuffer() { return renderBuffer; }
+	
 
 	void startSession();
 
@@ -52,5 +55,8 @@ private:
 
 	const int BUFFERSIZE = 1764;
 	char* renderBuffer;
+
+	int port;
+	QString address;
 
 };
