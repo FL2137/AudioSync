@@ -18,11 +18,14 @@ class Session {
 
 public:
 
-	Session(QString address, int port) {
+	Session(QString _address, int _port) {
 		audioCapture = new AudioCapture();
 		audioRender = new AudioRender(&renderMutex, &serverMutex);
 
 		renderBuffer = new char[BUFFERSIZE];
+
+		address = _address;
+		port = _port;
 	}
 
 	~Session();
@@ -32,9 +35,10 @@ public:
 	}
 	
 	inline char* getBuffer() { return renderBuffer; }
-	
 
 	void startSession();
+
+	void appendTargetEndpoint(QString address, int port);
 
 private:
 

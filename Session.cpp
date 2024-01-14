@@ -6,7 +6,6 @@ void Session::startSession() {
 
 	server = new UdpServer(renderBuffer, &renderMutex, &serverMutex, port, address);
 
-
 	audioCapture->moveToThread(&captureThread);
 	audioRender->moveToThread(&renderThread);
 
@@ -15,6 +14,8 @@ void Session::startSession() {
 
 	emit audioRender->win32Render(renderBuffer);
 	emit audioCapture->win32AudioCapture();
+
+	qDebug() << "session started";
 }
 
 
@@ -32,4 +33,8 @@ Session::~Session() {
 	delete audioRender;
 
 	delete[] renderBuffer;
+}
+
+void Session::appendTargetEndpoint(QString address, int port) {
+	server.addTargetedAddress(address, int port);
 }
