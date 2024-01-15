@@ -45,9 +45,10 @@ public:
 	void appendTargetEndpoint(QString address, int port);
 
 signals:
-	void runAudioCapture();
 	void runAudioRender(char* renderBuffer);
 
+signals:
+	void runAudioCapture();
 
 private:
 
