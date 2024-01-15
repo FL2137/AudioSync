@@ -8,14 +8,18 @@ void Session::startSession() {
 
 	audioCapture->moveToThread(&captureThread);
 	audioRender->moveToThread(&renderThread);
+	audioCapture->setServer(server);
+
+	connect(this, &Session::runAudioCapture, audioCapture, &AudioCapture::win32AudioCapture);
+	connect(this, &Session::runAudioRender, audioRender, &AudioRender::win32Render);
 
 	captureThread.start();
 	renderThread.start();
 
-	emit audioRender->win32Render(renderBuffer);
-	emit audioCapture->win32AudioCapture();
+	//emit audioCapture->win32AudioCapture();
+	emit runAudioCapture();
+	emit runAudioRender(renderBuffer);
 
-	qDebug() << "session started";
 }
 
 
@@ -36,5 +40,5 @@ Session::~Session() {
 }
 
 void Session::appendTargetEndpoint(QString address, int port) {
-	server.addTargetedAddress(address, port);
+	server->addTargetedEndpoint(address, port);
 }

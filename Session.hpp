@@ -1,9 +1,11 @@
 #pragma once
 
+#include <qobject.h>
 #include <qstring.h>
 #include "AudioRender.hpp"
 #include "AudioCapture.hpp"
 #include "UdpServer.hpp"
+
 
 class User {
 
@@ -14,7 +16,9 @@ public:
 
 };
 
-class Session {
+class Session : public QObject {
+
+	Q_OBJECT
 
 public:
 
@@ -39,6 +43,11 @@ public:
 	void startSession();
 
 	void appendTargetEndpoint(QString address, int port);
+
+signals:
+	void runAudioCapture();
+	void runAudioRender(char* renderBuffer);
+
 
 private:
 
