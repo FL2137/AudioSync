@@ -2,6 +2,7 @@
 
 #include "UdpServer.hpp"
 #include "AudioSync.h"
+#include "Session.hpp"
 
 #include "ui_ConnectDialog.h"
 #include <qdialog.h>
@@ -16,17 +17,16 @@ class ConnectDialogClass : public QDialog {
 
 public:
 	
-	ConnectDialogClass(QString& targetAddress, int& targetPort, QWidget* parent = nullptr) : QDialog(parent) {
+	ConnectDialogClass(Session &session, QWidget* parent = nullptr) : QDialog(parent) {
 
 		ui_conDialog.setupUi(&dialog);
 
-		ui_conDialog.comboBox->addItems(UdpServer::listLocalAddresses());
-
-		connect(ui_conDialog.okButton, &QPushButton::clicked, this, [=, &targetAddress, &targetPort]() {
-			targetAddress = ui_conDialog.comboBox->currentText();
-			targetPort = ui_conDialog.lineEdit->text().toInt();
-			dialog.close();
-			this->~ConnectDialogClass();
+		connect(ui_conDialog.okButton, &QPushButton::clicked, this, [=, &session]() {
+			if (!ui_conDialog.addressLine->text().isEmpty() && !ui_conDialog.portLine->text().isEmpty()) {
+				session.appendTargetEndpoint(ui_conDialog.addressLine->text(), ui_conDialog.portLine->text().toInt());
+				dialog.close();
+				this->~ConnectDialogClass();
+			}
 		});
 
 		dialog.show();
@@ -34,7 +34,6 @@ public:
 	}
 
 	~ConnectDialogClass() {
-
 		delete combo;
 		delete lineEdit;
 	}
