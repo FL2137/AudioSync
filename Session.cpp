@@ -1,6 +1,16 @@
 #include "Session.hpp"
 
 
+Session::Session(QString _address, int _port) {
+	audioCapture = new AudioCapture();
+	audioRender = new AudioRender(&renderMutex, &serverMutex);
+
+	renderBuffer = new char[BUFFERSIZE];
+
+	address = _address;
+	port = _port;
+}
+
 
 void Session::startSession() {
 
@@ -19,7 +29,7 @@ void Session::startSession() {
 	//emit audioCapture->win32AudioCapture();
 	emit runAudioCapture();
 	emit runAudioRender(renderBuffer);
-
+	qDebug() << "Session started properly";
 }
 
 

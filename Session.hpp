@@ -22,15 +22,7 @@ class Session : public QObject {
 
 public:
 
-	Session(QString _address, int _port) {
-		audioCapture = new AudioCapture();
-		audioRender = new AudioRender(&renderMutex, &serverMutex);
-
-		renderBuffer = new char[BUFFERSIZE];
-
-		address = _address;
-		port = _port;
-	}
+	Session(QString _address, int _port);
 
 	~Session();
 	
