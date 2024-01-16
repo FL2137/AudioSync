@@ -42,3 +42,11 @@ Session::~Session() {
 void Session::appendTargetEndpoint(QString address, int port) {
 	server->addTargetedEndpoint(address, port);
 }
+
+void Session::changeRenderVolume(int newVolume) {
+	this->audioRender->changeVolume(newVolume);
+}
+
+void Session::changeCaptureVolume(int newVolume) {
+	this->audioCapture->changeVolume(newVolume);
+}

@@ -25,13 +25,16 @@ void AudioSync::uiConnects() {
     });
 
     //connect dial to volume function and "LCD" display
-    connect(ui.volumeDial, &QDial::valueChanged, this, [this]() {
-        ui.lcdVolume->display(ui.volumeDial->value());
-        renderer->changeVolume(ui.volumeDial->value());
+    connect(ui.volumeDial, &QDial::valueChanged, session, [&](int value) {
+        session->changeCaptureVolume(value);
     });
 
     connect(ui.dialogButton, &QPushButton::clicked, this, &AudioSync::runConnectDialog);
 
+    connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
+        session = new Session(localAddress, ui.portLineEdit->text().toInt());
+        session->startSession();
+    });
 
 }
 
@@ -47,6 +50,7 @@ AudioSync::~AudioSync() {
     delete server;
     delete capturer;
     delete renderer;
+    delete session;
 }
 
 //functions
@@ -65,5 +69,5 @@ void AudioSync::startRecording() {
 
 
 void AudioSync::runConnectDialog() {
-    connectDialog = new ConnectDialogClass(address, port, this);
+    connectDialog = new ConnectDialogClass(*session, this);
 }
