@@ -42,6 +42,9 @@ public:
 		this->server = server;
 	}
 
+	float changeVolume(float newVolume);
+
+
 public slots:
 	void win32AudioCapture();
 

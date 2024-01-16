@@ -35,7 +35,6 @@ void AudioCapture::win32AudioCapture() {
 
 		while (packetLength != 0) {
 			hr = captureClient->GetBuffer(&data, &nFramesAvailable, &flags, NULL, NULL);
-			qDebug() << "nFrames: " << nFramesAvailable;
 			if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
 				data = NULL;
 			
@@ -88,4 +87,18 @@ void AudioCapture::hrHandler(HRESULT hr) {
 		_com_error _comerr(hr);
 		std::cout << "Error: " << (char*)_comerr.ErrorMessage() << std::endl;
 	}
+}
+
+
+float AudioCapture::changeVolume(float newVolume) {
+	CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
+	ISimpleAudioVolume* audioVolume;
+	audioClient->GetService(__uuidof(ISimpleAudioVolume), reinterpret_cast<void**>(&audioVolume));
+	float value;
+	audioVolume->SetMasterVolume(((float)newVolume / 10.f), NULL);
+	audioVolume->GetMasterVolume(&value);
+	qDebug() << "Setting Capture Volume to: " << value;
+	audioVolume->Release();
+	return value * 10;
+	CoUninitialize();
 }
