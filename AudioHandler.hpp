@@ -41,16 +41,27 @@
 class AudioHandler : public QObject {
 	Q_OBJECT
 public:
-	AudioHandler() {
-		initWASAPI();
-	}
+
+	enum MODE {
+		CAPTURE = 0,
+		RENDER = 1
+	};
+
+	AudioHandler(MODE mode);
+
+	~AudioHandler();
 
 	inline void setServer(UdpServer* server) {
 		this->server = server;
 	}
+	
+	inline void setMutex(QMutex* mutex) {
+		this->renderMutex = mutex;
+	}
 
 	float changeVolume(float newVolume);
 
+	
 
 public slots:
 	void win32AudioCapture();
@@ -64,10 +75,10 @@ signals:
 //private functions
 private:
 
-	void initWASAPI();
+	void initWASAPI(MODE mode);
 	void hrHandler(HRESULT hr);
 
-	void checkFormatSupport();
+	WAVEFORMATEX* checkFormatSupport();
 
 	//private variables
 private:
@@ -77,11 +88,10 @@ private:
 	IMMDevice* device = nullptr;
 	IMMDeviceCollection* deviceList = nullptr;
 	IAudioClient3* audioClient = nullptr;
-	IAudioCaptureClient* captureClient;
-	IAudioRenderClient* renderClient;
+	IAudioCaptureClient* captureClient = nullptr;
+	IAudioRenderClient* renderClient = nullptr;
 
 	WAVEFORMATEX* format = nullptr;
-
+	
 	QMutex* renderMutex;
-
 };

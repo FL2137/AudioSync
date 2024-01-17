@@ -1,5 +1,15 @@
 #include "AudioHandler.hpp"
 
+
+AudioHandler::AudioHandler(MODE mode) {
+	initWASAPI(mode);
+}
+
+AudioHandler::~AudioHandler() {
+	delete format;
+}
+
+
 void AudioHandler::win32AudioCapture() {
 	HRESULT hr;
 	hr = CoInitializeEx(0, COINIT_MULTITHREADED);
@@ -60,7 +70,8 @@ void AudioHandler::win32Render(char* buffer) {
 	audioClient->GetBufferSize(&bufferSizeFrames);
 
 	REFERENCE_TIME hnsActualDuration = (double)10000000 * bufferSizeFrames / format->nSamplesPerSec;
-	audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient));
+	hr = audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient));
+	hrHandler(hr);
 
 	audioClient->Start();
 
@@ -98,8 +109,8 @@ void AudioHandler::win32Render(char* buffer) {
 	CoUninitialize();
 }
 
-void AudioHandler::initWASAPI() {
-	CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
+void AudioHandler::initWASAPI(MODE mode) {
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	HRESULT hr;
 	IMMDeviceEnumerator* deviceEnum = nullptr;
 
@@ -117,6 +128,8 @@ void AudioHandler::initWASAPI() {
 	deviceEnum->Release();
 	hr = device->Activate(__uuidof(IAudioClient3), CLSCTX_ALL, nullptr, (void**)&audioClient);
 	hrHandler(hr);
+	
+	audioClient->GetMixFormat(&format);
 
 	format->wFormatTag = WAVE_FORMAT_PCM;
 	format->wBitsPerSample = 16;
@@ -124,11 +137,18 @@ void AudioHandler::initWASAPI() {
 	format->nSamplesPerSec = 44100;
 	format->nBlockAlign = (format->nChannels * format->wBitsPerSample) / 8;
 	format->nAvgBytesPerSec = format->nSamplesPerSec * format->nBlockAlign;
+	format->cbSize = 0;
 
 	REFERENCE_TIME requestedBufferDuration = 10000000;
 
-	DWORD streamFlags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
-	hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, requestedBufferDuration, 0, format, nullptr);
+	DWORD streamflags;
+	if (mode == CAPTURE) {
+		streamflags = AUDCLNT_STREAMFLAGS_LOOPBACK;
+	}
+	else if (mode == RENDER) {
+		streamflags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
+	}
+	hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamflags, requestedBufferDuration, 0, format, nullptr);
 
 	CoUninitialize();
 }
@@ -146,9 +166,45 @@ float AudioHandler::changeVolume(float newVolume) {
 	CoUninitialize();
 }
 
+WAVEFORMATEX* AudioHandler::checkFormatSupport() {
+
+	//default format:
+	WAVEFORMATEX fmt = {};
+	fmt.wFormatTag = WAVE_FORMAT_PCM;
+	fmt.wBitsPerSample = 16;
+	fmt.nChannels = 2;
+	fmt.nSamplesPerSec = 44100;
+	fmt.nBlockAlign = (fmt.nChannels * fmt.wBitsPerSample) / 8;
+	fmt.nAvgBytesPerSec = fmt.nSamplesPerSec * fmt.nBlockAlign;
+
+	WAVEFORMATEX *closestSupported;
+
+	HRESULT hr = audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, &fmt, &closestSupported);
+	if (hr == S_OK) {
+		//format supported
+		delete closestSupported;
+		return nullptr;
+	}
+	else if (hr == S_FALSE) {
+		//provided format not supported, closest supported format is passed to the variable
+		delete closestSupported;
+		return nullptr;
+	}
+	else if(hr == AUDCLNT_E_UNSUPPORTED_FORMAT) {
+		//format not supported at all, throw smth
+		throw std::exception("Audio format not supported by this device");
+	}
+
+	delete closestSupported;
+	return nullptr;
+}
+
+
+
 void AudioHandler::hrHandler(HRESULT hr) {
 	if (hr != S_OK) {
 		_com_error _comerr(hr);
-		std::cout << "Error: " << (char*)_comerr.ErrorMessage() << _comerr.Description() << std::endl;
+		qDebug() << "Error: " << (char*)_comerr.ErrorMessage();
 	}
 }
+
