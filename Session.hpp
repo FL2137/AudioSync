@@ -4,6 +4,7 @@
 #include <qstring.h>
 #include "AudioRender.hpp"
 #include "AudioCapture.hpp"
+#include "AudioHandler.hpp"
 #include "UdpServer.hpp"
 
 
@@ -55,6 +56,10 @@ private:
 
 	AudioCapture *audioCapture;
 	AudioRender *audioRender;
+
+	AudioHandler* audioC;
+	AudioHandler* audioR;
+
 
 	QThread renderThread;
 	QThread captureThread;

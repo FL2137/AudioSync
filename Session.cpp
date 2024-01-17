@@ -1,9 +1,12 @@
 #include "Session.hpp"
-
+#include <iostream>
 
 Session::Session(QString _address, int _port) {
-	audioCapture = new AudioCapture();
-	audioRender = new AudioRender(&renderMutex, &serverMutex);
+
+
+	audioC = new AudioHandler(AudioHandler::MODE::CAPTURE);
+	audioR = new AudioHandler(AudioHandler::MODE::RENDER);
+	audioR->setMutex(&renderMutex);
 
 	renderBuffer = new char[BUFFERSIZE];
 
@@ -11,27 +14,25 @@ Session::Session(QString _address, int _port) {
 	port = _port;
 }
 
-
 void Session::startSession() {
 
 	server = new UdpServer(renderBuffer, &renderMutex, &serverMutex, port, address);
 
-	audioCapture->moveToThread(&captureThread);
-	audioRender->moveToThread(&renderThread);
-	audioCapture->setServer(server);
+	audioC->moveToThread(&captureThread);
+	audioR->moveToThread(&renderThread);
+	audioC->setServer(server);
 
-	connect(this, &Session::runAudioCapture, audioCapture, &AudioCapture::win32AudioCapture);
-	connect(this, &Session::runAudioRender, audioRender, &AudioRender::win32Render);
+	connect(this, &Session::runAudioCapture, audioC, &AudioHandler::win32AudioCapture);
+	connect(this, &Session::runAudioRender, audioR, &AudioHandler::win32Render);
 
 	captureThread.start();
 	renderThread.start();
 
-	//emit audioCapture->win32AudioCapture();
 	emit runAudioCapture();
 	emit runAudioRender(renderBuffer);
+	
 	qDebug() << "Session started properly";
 }
-
 
 Session::~Session() {
 
@@ -46,6 +47,9 @@ Session::~Session() {
 	delete audioCapture;
 	delete audioRender;
 
+	delete audioC;
+	delete audioR;
+
 	delete[] renderBuffer;
 }
 
@@ -54,9 +58,9 @@ void Session::appendTargetEndpoint(QString address, int port) {
 }
 
 void Session::changeRenderVolume(int newVolume) {
-	this->audioRender->changeVolume(newVolume);
+	this->audioR->changeVolume(newVolume);
 }
 
 void Session::changeCaptureVolume(int newVolume) {
-	this->audioCapture->changeVolume(newVolume);
+	this->audioC->changeVolume(newVolume);
 }
