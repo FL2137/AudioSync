@@ -83,7 +83,7 @@ private:
 	//private variables
 private:
 	UdpServer* server = nullptr;
-
+	 
 	//wasapi interfaces
 	IMMDevice* device = nullptr;
 	IMMDeviceCollection* deviceList = nullptr;

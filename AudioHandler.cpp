@@ -9,7 +9,6 @@ AudioHandler::~AudioHandler() {
 	delete format;
 }
 
-
 void AudioHandler::win32AudioCapture() {
 	HRESULT hr;
 	hr = CoInitializeEx(0, COINIT_MULTITHREADED);
@@ -198,8 +197,6 @@ WAVEFORMATEX* AudioHandler::checkFormatSupport() {
 	delete closestSupported;
 	return nullptr;
 }
-
-
 
 void AudioHandler::hrHandler(HRESULT hr) {
 	if (hr != S_OK) {
