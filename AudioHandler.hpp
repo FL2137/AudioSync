@@ -55,8 +55,9 @@ public:
 		this->server = server;
 	}
 	
-	inline void setMutex(QMutex* mutex) {
-		this->renderMutex = mutex;
+	inline void setMutex(QMutex* _renderMutex, QMutex* _serverMutex) {
+		this->renderMutex = _renderMutex;
+		this->serverMutex = _serverMutex;
 	}
 
 	float changeVolume(float newVolume);
@@ -94,4 +95,5 @@ private:
 	WAVEFORMATEX* format = nullptr;
 	
 	QMutex* renderMutex;
+	QMutex* serverMutex;
 };

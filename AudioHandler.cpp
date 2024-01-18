@@ -11,7 +11,7 @@ AudioHandler::~AudioHandler() {
 
 void AudioHandler::win32AudioCapture() {
 	HRESULT hr;
-	hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+	hr = CoInitializeEx(0, COINIT_SPEED_OVER_MEMORY);
 
 	REFERENCE_TIME hnsActualDuration;
 
@@ -95,11 +95,12 @@ void AudioHandler::win32Render(char* buffer) {
 		samplesIterator = 0;
 
 		int bytesToWrite = nFramesToWrite * format->nBlockAlign;
-
-		renderMutex->lock();
-		std::memcpy(renderBuffer, buffer, bytesToWrite);
-		renderMutex->unlock();
-
+		if (bytesToWrite != 0) {
+			qDebug() << "Render::bytesToWrite: " << bytesToWrite;
+			renderMutex->lock();
+			std::memcpy(renderBuffer, buffer, bytesToWrite);
+			renderMutex->unlock();
+		}
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 	}
@@ -109,7 +110,7 @@ void AudioHandler::win32Render(char* buffer) {
 }
 
 void AudioHandler::initWASAPI(MODE mode) {
-	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
 	HRESULT hr;
 	IMMDeviceEnumerator* deviceEnum = nullptr;
 
@@ -137,6 +138,9 @@ void AudioHandler::initWASAPI(MODE mode) {
 	format->nBlockAlign = (format->nChannels * format->wBitsPerSample) / 8;
 	format->nAvgBytesPerSec = format->nSamplesPerSec * format->nBlockAlign;
 	format->cbSize = 0;
+
+	//check format support
+	format = checkFormatSupport();
 
 	REFERENCE_TIME requestedBufferDuration = 10000000;
 
@@ -167,27 +171,21 @@ float AudioHandler::changeVolume(float newVolume) {
 
 WAVEFORMATEX* AudioHandler::checkFormatSupport() {
 
-	//default format:
-	WAVEFORMATEX fmt = {};
-	fmt.wFormatTag = WAVE_FORMAT_PCM;
-	fmt.wBitsPerSample = 16;
-	fmt.nChannels = 2;
-	fmt.nSamplesPerSec = 44100;
-	fmt.nBlockAlign = (fmt.nChannels * fmt.wBitsPerSample) / 8;
-	fmt.nAvgBytesPerSec = fmt.nSamplesPerSec * fmt.nBlockAlign;
-
 	WAVEFORMATEX *closestSupported;
 
-	HRESULT hr = audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, &fmt, &closestSupported);
+	HRESULT hr = audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, &closestSupported);
 	if (hr == S_OK) {
 		//format supported
 		delete closestSupported;
-		return nullptr;
+		return format;
 	}
 	else if (hr == S_FALSE) {
+		qDebug() << "provided format not supported, using this format:";
+		qDebug() << "bitsPerSample: " << closestSupported->wBitsPerSample;
+		qDebug() << "channels: " << closestSupported->nChannels;
+		qDebug() << "samplesPerSec: " << closestSupported->nSamplesPerSec;
 		//provided format not supported, closest supported format is passed to the variable
-		delete closestSupported;
-		return nullptr;
+		return closestSupported;
 	}
 	else if(hr == AUDCLNT_E_UNSUPPORTED_FORMAT) {
 		//format not supported at all, throw smth

@@ -44,9 +44,8 @@ public slots:
 
 signals:
 	void runAudioRender(char* renderBuffer);
-
-signals:
 	void runAudioCapture();
+	void runServerThread();
 
 private:
 
@@ -63,6 +62,7 @@ private:
 
 	QThread renderThread;
 	QThread captureThread;
+	QThread serverThread;
 
 	QMutex renderMutex;
 	QMutex serverMutex;
