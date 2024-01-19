@@ -11,7 +11,7 @@ AudioHandler::~AudioHandler() {
 
 void AudioHandler::win32AudioCapture() {
 	HRESULT hr;
-	hr = CoInitializeEx(0, COINIT_SPEED_OVER_MEMORY);
+	hr = CoInitializeEx(0, CURRENT_COINIT);
 
 	REFERENCE_TIME hnsActualDuration;
 
@@ -63,7 +63,7 @@ void AudioHandler::win32AudioCapture() {
 
 void AudioHandler::win32Render(char* buffer) {
 
-	HRESULT hr = CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
+	HRESULT hr = CoInitializeEx(nullptr, CURRENT_COINIT);
 
 	uint32_t bufferSizeFrames = 0;
 	audioClient->GetBufferSize(&bufferSizeFrames);
@@ -110,7 +110,7 @@ void AudioHandler::win32Render(char* buffer) {
 }
 
 void AudioHandler::initWASAPI(MODE mode) {
-	CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
+	CoInitializeEx(nullptr, CURRENT_COINIT);
 	HRESULT hr;
 	IMMDeviceEnumerator* deviceEnum = nullptr;
 
@@ -143,7 +143,7 @@ void AudioHandler::initWASAPI(MODE mode) {
 	auto formatCheck = checkFormatSupport();
 
 	if (format != formatCheck) {
-
+		initialized = false;
 	}
 
 	REFERENCE_TIME requestedBufferDuration = 10000000;
@@ -163,7 +163,7 @@ void AudioHandler::initWASAPI(MODE mode) {
 }
 
 float AudioHandler::changeVolume(float newVolume) {
-	CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
+	CoInitializeEx(nullptr, CURRENT_COINIT);
 	ISimpleAudioVolume* audioVolume;
 	audioClient->GetService(__uuidof(ISimpleAudioVolume), reinterpret_cast<void**>(&audioVolume));
 	float value;

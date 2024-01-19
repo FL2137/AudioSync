@@ -62,7 +62,9 @@ public:
 
 	float changeVolume(float newVolume);
 
-	
+public:
+	bool initialized = false;
+
 
 public slots:
 	void win32AudioCapture();
@@ -96,4 +98,6 @@ private:
 	
 	QMutex* renderMutex;
 	QMutex* serverMutex;
+
+	int CURRENT_COINIT = COINIT_MULTITHREADED;
 };
