@@ -4,14 +4,9 @@
 Session::Session(QString _address, int _port) {
 
 
-	//audioC = new AudioHandler(AudioHandler::MODE::CAPTURE);
-	//audioR = new AudioHandler(AudioHandler::MODE::RENDER);
-	//audioR->setMutex(&renderMutex, &serverMutex);
-
-
-	audioRender = new AudioRender(&renderMutex, &serverMutex);
-	audioCapture = new AudioCapture();
-
+	audioC = new AudioHandler(AudioHandler::MODE::CAPTURE);
+	audioR = new AudioHandler(AudioHandler::MODE::RENDER);
+	audioR->setMutex(&renderMutex, &serverMutex);
 	renderBuffer = new char[BUFFERSIZE];
 
 	address = _address;
@@ -22,17 +17,12 @@ void Session::startSession() {
 
 	server = new UdpServer(renderBuffer, &renderMutex, &serverMutex, port, address);
 
-	/*audioC->moveToThread(&captureThread);
-	audioR->moveToThread(&renderThread);
-	audioC->setServer(server);*/
-
 	server->moveToThread(&serverThread);
 	connect(this, &Session::runServerThread, server, &UdpServer::readPendingData);
 	serverThread.start();
 	emit runServerThread();
 
-
-	if (audioCapture->initialized) {
+	/*if (audioCapture->initialized) {
 		audioCapture->moveToThread(&captureThread);
 		audioCapture->setServer(server);
 		connect(this, &Session::runAudioCapture, audioCapture, &AudioCapture::win32AudioCapture);
@@ -48,20 +38,34 @@ void Session::startSession() {
 		renderThread.start();
 		emit runAudioRender(renderBuffer);
 		qDebug() << "Render works";
+	}*/
+
+	bool audioDevicesGood = false;
+
+	if (audioC->initialized) {
+		audioC->moveToThread(&captureThread);
+		audioC->setServer(server);
+		connect(this, &Session::runAudioCapture, audioC, &AudioHandler::win32AudioCapture);
+		captureThread.start();
+		emit runAudioCapture();
+		audioDevicesGood = true;
 	}
 
 
+	if (audioR->initialized) {
+		audioR->moveToThread(&renderThread);
+		connect(this, &Session::runAudioRender, audioR, &AudioHandler::win32Render);
+		renderThread.start();
+		emit runAudioRender(renderBuffer);
+	}
+	else {
+		audioDevicesGood = false;
+	}
 
 
-	/*connect(this, &Session::runServerThread, server, &UdpServer::readPendingData);
-	connect(this, &Session::runAudioCapture, audioC, &AudioHandler::win32AudioCapture);
-	connect(this, &Session::runAudioRender, audioR, &AudioHandler::win32Render);*/
-
-	
-
-
-	
-	qDebug() << "Session started properly";
+	if (audioDevicesGood) {
+		qDebug() << "Session started properly";
+	}
 }
 
 Session::~Session() {

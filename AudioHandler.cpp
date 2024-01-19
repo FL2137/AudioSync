@@ -140,7 +140,11 @@ void AudioHandler::initWASAPI(MODE mode) {
 	format->cbSize = 0;
 
 	//check format support
-	format = checkFormatSupport();
+	auto formatCheck = checkFormatSupport();
+
+	if (format != formatCheck) {
+
+	}
 
 	REFERENCE_TIME requestedBufferDuration = 10000000;
 
@@ -154,6 +158,8 @@ void AudioHandler::initWASAPI(MODE mode) {
 	hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamflags, requestedBufferDuration, 0, format, nullptr);
 
 	CoUninitialize();
+
+	initialized = true;
 }
 
 float AudioHandler::changeVolume(float newVolume) {
