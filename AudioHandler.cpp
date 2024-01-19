@@ -12,7 +12,7 @@ AudioHandler::~AudioHandler() {
 void AudioHandler::win32AudioCapture() {
 	HRESULT hr;
 	hr = CoInitializeEx(0, CURRENT_COINIT);
-
+	hrHandler(hr);
 	REFERENCE_TIME hnsActualDuration;
 
 	uint32_t bufferFrameCount = 0;
@@ -21,7 +21,6 @@ void AudioHandler::win32AudioCapture() {
 	uint8_t* data;
 	DWORD flags;
 
-	int errorStop;
 	REFERENCE_TIME hnsRequestedDuration = 10000000;
 
 	unsigned int bufferSize;
@@ -36,7 +35,7 @@ void AudioHandler::win32AudioCapture() {
 	bool finish = false;
 
 	while (!finish) {
-		Sleep(hnsActualDuration / 10000 / 2);
+		//Sleep(hnsActualDuration / 10000 / 2);
 
 		hr = captureClient->GetNextPacketSize(&packetLength);
 
@@ -64,7 +63,7 @@ void AudioHandler::win32AudioCapture() {
 void AudioHandler::win32Render(char* buffer) {
 
 	HRESULT hr = CoInitializeEx(nullptr, CURRENT_COINIT);
-
+	hrHandler(hr);
 	uint32_t bufferSizeFrames = 0;
 	audioClient->GetBufferSize(&bufferSizeFrames);
 
@@ -81,7 +80,7 @@ void AudioHandler::win32Render(char* buffer) {
 
 	bool run = true;
 	while (run) {
-		//Sleep((DWORD)(hnsActualDuration / 10000 / 2));
+		Sleep((DWORD)(hnsActualDuration / 10000 / 2));
 
 		uint32_t bufferPadding;
 		audioClient->GetCurrentPadding(&bufferPadding);
@@ -110,8 +109,8 @@ void AudioHandler::win32Render(char* buffer) {
 }
 
 void AudioHandler::initWASAPI(MODE mode) {
-	CoInitializeEx(nullptr, CURRENT_COINIT);
-	HRESULT hr;
+	HRESULT hr = CoInitializeEx(nullptr, CURRENT_COINIT);
+	hrHandler(hr);
 	IMMDeviceEnumerator* deviceEnum = nullptr;
 
 	//audio output is still defaulted to the currently playing one
@@ -163,7 +162,8 @@ void AudioHandler::initWASAPI(MODE mode) {
 }
 
 float AudioHandler::changeVolume(float newVolume) {
-	CoInitializeEx(nullptr, CURRENT_COINIT);
+	HRESULT hr = CoInitializeEx(nullptr, CURRENT_COINIT);
+	hrHandler(hr);
 	ISimpleAudioVolume* audioVolume;
 	audioClient->GetService(__uuidof(ISimpleAudioVolume), reinterpret_cast<void**>(&audioVolume));
 	float value;
