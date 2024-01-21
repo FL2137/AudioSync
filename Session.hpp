@@ -53,11 +53,8 @@ private:
 
 	User users[2];
 
-	AudioCapture *audioCapture;
-	AudioRender *audioRender;
-
-	AudioHandler* audioC;
-	AudioHandler* audioR;
+	AudioHandler* audioCapture;
+	AudioHandler* audioRender;
 
 
 	QThread renderThread;

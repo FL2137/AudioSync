@@ -4,9 +4,9 @@
 Session::Session(QString _address, int _port) {
 
 
-	audioC = new AudioHandler(AudioHandler::MODE::CAPTURE);
-	audioR = new AudioHandler(AudioHandler::MODE::RENDER);
-	audioR->setMutex(&renderMutex, &serverMutex);
+	audioCapture = new AudioHandler(AudioHandler::MODE::CAPTURE);
+	audioRender = new AudioHandler(AudioHandler::MODE::RENDER);
+	audioRender->setMutex(&renderMutex, &serverMutex);
 	renderBuffer = new char[BUFFERSIZE];
 
 	address = _address;
@@ -17,55 +17,26 @@ void Session::startSession() {
 
 	server = new UdpServer(renderBuffer, &renderMutex, &serverMutex, port, address);
 
+	audioCapture->setServer(server);
+
 	server->moveToThread(&serverThread);
+	audioCapture->moveToThread(&captureThread);
+	audioRender->moveToThread(&renderThread);
+	
+	connect(this, &Session::runAudioRender, audioRender, &AudioHandler::win32Render);
+	connect(this, &Session::runAudioCapture, audioCapture, &AudioHandler::win32AudioCapture);
 	connect(this, &Session::runServerThread, server, &UdpServer::readPendingData);
+
 	serverThread.start();
+	captureThread.start();
+	renderThread.start();
+
 	emit runServerThread();
-
-	/*if (audioCapture->initialized) {
-		audioCapture->moveToThread(&captureThread);
-		audioCapture->setServer(server);
-		connect(this, &Session::runAudioCapture, audioCapture, &AudioCapture::win32AudioCapture);
-		captureThread.start();
-		emit runAudioCapture();
-		qDebug() << "Capture works";
-	}
-
-	//run render
-	if (audioRender->initialized) {
-		audioRender->moveToThread(&renderThread);
-		connect(this, &Session::runAudioRender, audioRender, &AudioRender::win32Render);
-		renderThread.start();
-		emit runAudioRender(renderBuffer);
-		qDebug() << "Render works";
-	}*/
-
-	bool audioDevicesGood = false;
-
-	if (audioC->initialized) {
-		audioC->moveToThread(&captureThread);
-		audioC->setServer(server);
-		connect(this, &Session::runAudioCapture, audioC, &AudioHandler::win32AudioCapture);
-		captureThread.start();
-		emit runAudioCapture();
-		audioDevicesGood = true;
-	}
+	emit runAudioCapture();
+	emit runAudioRender(renderBuffer);
 
 
-	if (audioR->initialized) {
-		audioR->moveToThread(&renderThread);
-		connect(this, &Session::runAudioRender, audioR, &AudioHandler::win32Render);
-		renderThread.start();
-		emit runAudioRender(renderBuffer);
-	}
-	else {
-		audioDevicesGood = false;
-	}
-
-
-	if (audioDevicesGood) {
-		qDebug() << "Session started properly";
-	}
+	qDebug() << "Session started properly";
 }
 
 Session::~Session() {
@@ -84,8 +55,8 @@ Session::~Session() {
 	delete audioCapture;
 	delete audioRender;
 
-	delete audioC;
-	delete audioR;
+	delete audioCapture;
+	delete audioRender;
 
 	delete[] renderBuffer;
 }
@@ -95,9 +66,9 @@ void Session::appendTargetEndpoint(QString address, int port) {
 }
 
 void Session::changeRenderVolume(int newVolume) {
-	this->audioR->changeVolume(newVolume);
+	this->audioRender->changeVolume(newVolume);
 }
 
 void Session::changeCaptureVolume(int newVolume) {
-	this->audioC->changeVolume(newVolume);
+	this->audioCapture->changeVolume(newVolume);
 }
