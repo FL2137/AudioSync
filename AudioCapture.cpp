@@ -8,7 +8,6 @@ void AudioCapture::win32AudioCapture() {
 
 	REFERENCE_TIME hnsActualDuration;
 
-	uint32_t bufferFrameCount = 0;
 	uint32_t nFramesAvailable;
 	uint32_t packetLength = 0;
 	uint8_t* data;
@@ -23,7 +22,7 @@ void AudioCapture::win32AudioCapture() {
 	hr = audioClient->GetService(__uuidof(IAudioCaptureClient), (void**)&captureClient);
 	hrHandler(hr);
 
-	hnsActualDuration = (double)10000000 * bufferFrameCount / format->nSamplesPerSec;
+	hnsActualDuration = (double)10000000 * bufferSize / format->nSamplesPerSec;
 	audioClient->Start();
 
 	bool finish = false;
@@ -58,6 +57,7 @@ void AudioCapture::win32AudioCapture() {
 
 void AudioCapture::initWASAPI() {
 	HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+	qDebug() << "AuidoCapture::initWASAPI()";
 
 	IMMDeviceEnumerator* enumerator = nullptr;
 	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&enumerator);
@@ -65,6 +65,14 @@ void AudioCapture::initWASAPI() {
 	enumerator->Release();
 
 	hr = device->Activate(__uuidof(IAudioClient3), CLSCTX_ALL, NULL, (void**)&audioClient);
+
+	IPropertyStore* store;
+	device->OpenPropertyStore(STGM_READ, &store);
+
+	PROPVARIANT name;
+	PropVariantInit(&name);
+	store->GetValue(PKEY_Device_FriendlyName, &name);
+	printf("----%S\n", name.pwszVal);
 	
 	REFERENCE_TIME hnsRequestedDuration = 10000000;
 	hr = audioClient->GetMixFormat(&format);
@@ -78,14 +86,28 @@ void AudioCapture::initWASAPI() {
 	format->nAvgBytesPerSec = 176400l;
 	format->cbSize = 0;
 
+	WAVEFORMATEX* f;
+	HRESULT fcheck = audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, &f);
+	if (fcheck == S_OK) {
+		//slay
+	}
+	else if (fcheck == S_FALSE) {
+		return;
+	}
+
+
 	hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, hnsRequestedDuration, 0, format, NULL);
+
+	CoUninitialize();
+
+	initialized = true;
 }
 
 
 void AudioCapture::hrHandler(HRESULT hr) {
 	if (hr != S_OK) {
 		_com_error _comerr(hr);
-		std::cout << "Error: " << (char*)_comerr.ErrorMessage() << std::endl;
+		std::cout << "Error: " << (char*)_comerr.ErrorMessage() << _comerr.Description() << std::endl;
 	}
 }
 

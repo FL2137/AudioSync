@@ -44,6 +44,7 @@ public:
 
 	float changeVolume(float newVolume);
 
+	bool initialized = false;
 
 public slots:
 	void win32AudioCapture();
@@ -58,8 +59,7 @@ private:
 
 	void initWASAPI();
 	void hrHandler(HRESULT hr);
-
-
+	
 	//private variables
 private:
 	UdpServer* server = nullptr;

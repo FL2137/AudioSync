@@ -43,7 +43,7 @@ public:
 		renderSem = new Semaphore(0);
 		serverSem = new Semaphore(0);
 
-		initializeWASAPI();
+		initWASAPI();
 	}
 
 	~AudioRender() {
@@ -61,11 +61,12 @@ public:
 	QMutex *renderMutex, *serverMutex;
 	Semaphore* renderSem, *serverSem;
 
+	bool initialized = false;
+
 public slots:
 	void render(QByteArray* buffer);
 	void win32Render(char *buffer);
 	float changeVolume(float newVolume);
-
 
 signals:
 	void bufferRendered();
@@ -73,7 +74,7 @@ signals:
 private:
 	void handleStateChange(QAudio::State state);
 
-	void initializeWASAPI();
+	void initWASAPI();
 
 private:
 	QAudioSink* sink;
