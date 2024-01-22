@@ -34,7 +34,7 @@ void AudioHandler::win32AudioCapture() {
 	bool finish = false;
 
 	while (!finish) {
-		Sleep(hnsActualDuration / REFTIMES_PER_MILLISEC / 2);
+		//Sleep(hnsActualDuration / REFTIMES_PER_MILLISEC / 2);
 
 		hr = captureClient->GetNextPacketSize(&packetLength);
 
@@ -66,9 +66,10 @@ void AudioHandler::win32Render(char* buffer) {
 	uint32_t bufferSizeFrames = 0;
 	audioClient->GetBufferSize(&bufferSizeFrames);
 
-	REFERENCE_TIME hnsActualDuration = (double)REFTIMES_PER_SEC * bufferSizeFrames / format->nSamplesPerSec;
 	hr = audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient));
 	hrHandler(hr);
+
+	REFERENCE_TIME hnsActualDuration = (double)REFTIMES_PER_SEC * bufferSizeFrames / format->nSamplesPerSec;
 
 	audioClient->Start();
 
@@ -136,11 +137,11 @@ void AudioHandler::initWASAPI(MODE mode) {
 	format->cbSize = 0;
 
 	//check format support
-	auto formatCheck = checkFormatSupport();
+	//auto formatCheck = checkFormatSupport();
 
-	if (format != formatCheck) {
+	/*if (format != formatCheck) {
 		initialized = false;
-	}
+	}S*/
 
 	REFERENCE_TIME requestedBufferDuration = REFTIMES_PER_SEC;
 
