@@ -74,8 +74,8 @@ void AudioRender::win32Render(char *buffer) {
 	uint32_t bufferSizeFrames = 0;
 	audioClient->GetBufferSize(&bufferSizeFrames);
 
-	REFERENCE_TIME hnsActualDuration = (double)10000000 * bufferSizeFrames / format.nSamplesPerSec;
 	audioClient->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void**>(&renderClient));
+	REFERENCE_TIME hnsActualDuration = (double)10000000 * bufferSizeFrames / format.nSamplesPerSec;
 
 	audioClient->Start();
 
