@@ -20,7 +20,7 @@ void AudioHandler::win32AudioCapture() {
 	uint8_t* data;
 	DWORD flags;
 
-	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
+	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC * 2;
 
 	unsigned int bufferSize;
 	audioClient->GetBufferSize(&bufferSize);
@@ -143,7 +143,7 @@ void AudioHandler::initWASAPI(MODE mode) {
 		initialized = false;
 	}S*/
 
-	REFERENCE_TIME requestedBufferDuration = REFTIMES_PER_SEC;
+	REFERENCE_TIME requestedBufferDuration = REFTIMES_PER_SEC * 2;
 
 	DWORD streamflags;
 	if (mode == CAPTURE) {
