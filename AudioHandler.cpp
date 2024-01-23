@@ -40,6 +40,7 @@ void AudioHandler::win32AudioCapture() {
 
 		while (packetLength != 0) {
 			hr = captureClient->GetBuffer(&data, &nFramesAvailable, &flags, NULL, NULL);
+			
 			if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
 				data = NULL;
 
@@ -94,11 +95,9 @@ void AudioHandler::win32Render(char* buffer) {
 		samplesIterator = 0;
 
 		int bytesToWrite = nFramesToWrite * format->nBlockAlign;
-		if (bytesToWrite != 0) {
-			renderMutex->lock();
-			std::memcpy(renderBuffer, buffer, bytesToWrite);
-			renderMutex->unlock();
-		}
+		renderMutex->lock();
+		std::memcpy(renderBuffer, buffer, bytesToWrite);
+		renderMutex->unlock();
 
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 	}
@@ -150,8 +149,7 @@ void AudioHandler::initWASAPI(MODE mode) {
 		streamflags = AUDCLNT_STREAMFLAGS_LOOPBACK;
 	}
 	else if (mode == RENDER) {
-		//streamflags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
-		streamflags = 0;
+		streamflags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
 	}
 	hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamflags, requestedBufferDuration, 0, format, NULL);
 
@@ -159,11 +157,17 @@ void AudioHandler::initWASAPI(MODE mode) {
 }
 
 float AudioHandler::changeVolume(float newVolume) {
-	ISimpleAudioVolume* audioVolume;
-	audioClient->GetService(__uuidof(ISimpleAudioVolume), reinterpret_cast<void**>(&audioVolume));
+	IAudioStreamVolume* audioVolume;
+
+	audioClient->GetService(__uuidof(IAudioStreamVolume), reinterpret_cast<void**>(&audioVolume));
 	float value;
-	audioVolume->SetMasterVolume(((float)newVolume / 10.f), NULL);
-	audioVolume->GetMasterVolume(&value);
+	float* volumes = new float[format->nChannels];
+	for (int i = 0; i < format->nChannels; i++)
+		volumes[i] = (newVolume/10.f);
+
+	audioVolume->SetAllVolumes(format->nChannels, volumes);
+	audioVolume->GetChannelVolume(0, &value);
+	
 	qDebug() << "Setting Volume to: " << value;
 	audioVolume->Release();
 	return value * 10;
