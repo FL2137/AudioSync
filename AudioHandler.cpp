@@ -79,6 +79,8 @@ void AudioHandler::win32Render(char* buffer) {
 	const int16_t TONE_VOLUME = 3000;
 	int samplesIterator = 0;
 
+	char* cmpBuffer = new char[BUFFER_SIZE]{0};
+
 	bool run = true;
 	while (run) {
 		//Sleep((DWORD)(hnsActualDuration / REFTIMES_PER_MILLISEC / 2));
@@ -95,6 +97,7 @@ void AudioHandler::win32Render(char* buffer) {
 		samplesIterator = 0;
 
 		int bytesToWrite = nFramesToWrite * format->nBlockAlign;
+
 		renderMutex->lock();
 		std::memcpy(renderBuffer, buffer, bytesToWrite);
 		renderMutex->unlock();
@@ -134,13 +137,6 @@ void AudioHandler::initWASAPI(MODE mode) {
 	format->nBlockAlign = (format->nChannels * format->wBitsPerSample) / 8;
 	format->nAvgBytesPerSec = format->nSamplesPerSec * format->nBlockAlign;
 	format->cbSize = 0;
-
-	//check format support
-	//auto formatCheck = checkFormatSupport();
-
-	/*if (format != formatCheck) {
-		initialized = false;
-	}S*/
 
 	REFERENCE_TIME requestedBufferDuration = REFTIMES_PER_SEC * 2;
 
