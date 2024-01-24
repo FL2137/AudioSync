@@ -128,6 +128,7 @@ void AudioHandler::initWASAPI(MODE mode) {
 	hr = device->Activate(__uuidof(IAudioClient3), CLSCTX_ALL, NULL, (void**)&audioClient);
 	hrHandler(hr);
 	
+
 	audioClient->GetMixFormat(&format);
 
 	format->wFormatTag = WAVE_FORMAT_PCM;
@@ -137,6 +138,14 @@ void AudioHandler::initWASAPI(MODE mode) {
 	format->nBlockAlign = (format->nChannels * format->wBitsPerSample) / 8;
 	format->nAvgBytesPerSec = format->nSamplesPerSec * format->nBlockAlign;
 	format->cbSize = 0;
+	
+	WAVEFORMATEX *formatPeriod;
+	unsigned int currentPeriodInFrames;
+
+	hr = audioClient->GetCurrentSharedModeEnginePeriod(&formatPeriod, &currentPeriodInFrames);
+	hrHandler(hr);
+
+	qDebug() << "CurrentPeriodInFrames: " << currentPeriodInFrames;
 
 	REFERENCE_TIME requestedBufferDuration = REFTIMES_PER_SEC * 2;
 
