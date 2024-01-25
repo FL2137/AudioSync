@@ -15,23 +15,23 @@ Session::Session(QString _address, int _port) {
 
 void Session::startSession() {
 
-	server = new UdpServer(renderBuffer, &renderMutex, &serverMutex, port, address);
+	//server = new UdpServer(renderBuffer, &renderMutex, &serverMutex, port, address);
 
-	audioCapture->setServer(server);
+	//audioCapture->setServer(server);
 
-	server->moveToThread(&serverThread);
+	//server->moveToThread(&serverThread);
 	audioCapture->moveToThread(&captureThread);
 	audioRender->moveToThread(&renderThread);
 	
 	connect(this, &Session::runAudioRender, audioRender, &AudioHandler::win32Render);
 	connect(this, &Session::runAudioCapture, audioCapture, &AudioHandler::win32AudioCapture);
-	connect(this, &Session::runServerThread, server, &UdpServer::readPendingData);
+	//connect(this, &Session::runServerThread, server, &UdpServer::readPendingData);
 
-	serverThread.start();
+	//serverThread.start();
 	captureThread.start();
 	renderThread.start();
 
-	emit runServerThread();
+	//emit runServerThread();
 	emit runAudioCapture();
 	emit runAudioRender(renderBuffer);
 
