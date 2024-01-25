@@ -37,6 +37,8 @@
 
 #include "UdpServer.hpp"
 
+#include <boost/asio.hpp>
+
 
 class AudioHandler : public QObject {
 	Q_OBJECT
@@ -60,6 +62,11 @@ public:
 		this->serverMutex = _serverMutex;
 	}
 
+	inline void setEndpoint(std::string address, std::string _port) {
+		this->targetAddress = address;
+		this->targetPort = _port;
+	}
+
 	float changeVolume(float newVolume);
 
 public:
@@ -68,7 +75,7 @@ public:
 
 public slots:
 	void win32AudioCapture();
-	void win32Render(char* buffer);
+	void win32Render();
 
 signals:
 	void bufferFilled();
@@ -95,6 +102,8 @@ private:
 	IAudioRenderClient* renderClient = nullptr;
 
 	WAVEFORMATEX* format = nullptr;
+
+	std::string targetAddress, targetPort;
 
 	QMutex* renderMutex;
 	QMutex* serverMutex;
