@@ -20,10 +20,11 @@ public:
 
 	void startSession();
 
+	void appendTargetEndpoint(QString address, int port);
+
 public slots:
 	void changeRenderVolume(int newVolume);
 	void changeCaptureVolume(int newVolume);
-
 
 signals:
 	void runAudioRender(char* renderBuffer);

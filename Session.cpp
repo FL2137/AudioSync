@@ -54,3 +54,7 @@ void Session::changeRenderVolume(int newVolume) {
 void Session::changeCaptureVolume(int newVolume) {
 	this->audioCapture->changeVolume(newVolume);
 }
+
+void Session::appendTargetEndpoint(QString address, int port) {
+	audioCapture->appendEndpoint(address, port);
+}
