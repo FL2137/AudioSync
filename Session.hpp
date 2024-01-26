@@ -5,17 +5,6 @@
 #include "AudioRender.hpp"
 #include "AudioCapture.hpp"
 #include "AudioHandler.hpp"
-#include "UdpServer.hpp"
-
-
-class User {
-
-public:
-	User() {
-
-	}
-
-};
 
 class Session : public QObject {
 
@@ -27,15 +16,9 @@ public:
 
 	~Session();
 	
-	inline void setServer(UdpServer* _server) {
-		this->server = _server;
-	}
-	
 	inline char* getBuffer() { return renderBuffer; }
 
 	void startSession();
-
-	void appendTargetEndpoint(QString address, int port);
 
 public slots:
 	void changeRenderVolume(int newVolume);
@@ -51,20 +34,12 @@ private:
 
 	int id;
 
-	User users[2];
-
 	AudioHandler* audioCapture;
 	AudioHandler* audioRender;
 
 
 	QThread renderThread;
 	QThread captureThread;
-	QThread serverThread;
-
-	QMutex renderMutex;
-	QMutex serverMutex;
-
-	UdpServer* server;
 
 	const int BUFFERSIZE = 1764;
 	char* renderBuffer;

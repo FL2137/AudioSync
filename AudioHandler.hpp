@@ -53,15 +53,6 @@ public:
 
 	~AudioHandler();
 
-	inline void setServer(UdpServer* server) {
-		this->server = server;
-	}
-
-	inline void setMutex(QMutex* _renderMutex, QMutex* _serverMutex) {
-		this->renderMutex = _renderMutex;
-		this->serverMutex = _serverMutex;
-	}
-
 	inline void setEndpoint(std::string address, std::string _port) {
 		this->targetAddress = address;
 		this->targetPort = _port;
@@ -75,7 +66,7 @@ public:
 
 public slots:
 	void win32AudioCapture();
-	void win32Render();
+	void win32Render(char *buffer);
 
 signals:
 	void bufferFilled();
@@ -92,7 +83,6 @@ private:
 
 	//private variables
 private:
-	UdpServer* server = nullptr;
 
 	//wasapi interfaces
 	IMMDevice* device = nullptr;
@@ -104,9 +94,6 @@ private:
 	WAVEFORMATEX* format = nullptr;
 
 	std::string targetAddress, targetPort;
-
-	QMutex* renderMutex;
-	QMutex* serverMutex;
 
 	int CURRENT_COINIT = COINIT_SPEED_OVER_MEMORY;
 

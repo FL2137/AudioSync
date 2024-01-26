@@ -6,8 +6,7 @@ Session::Session(QString _address, int _port) {
 
 	audioCapture = new AudioHandler(AudioHandler::MODE::CAPTURE);
 	audioRender = new AudioHandler(AudioHandler::MODE::RENDER);
-	audioRender->setMutex(&renderMutex, &serverMutex);
-	renderBuffer = new char[BUFFERSIZE];
+	renderBuffer = new char[BUFFERSIZE] {0};
 
 	address = _address;
 	port = _port;
@@ -15,23 +14,15 @@ Session::Session(QString _address, int _port) {
 
 void Session::startSession() {
 
-	//server = new UdpServer(renderBuffer, &renderMutex, &serverMutex, port, address);
-
-	//audioCapture->setServer(server);
-
-	//server->moveToThread(&serverThread);
 	audioCapture->moveToThread(&captureThread);
 	audioRender->moveToThread(&renderThread);
 	
 	connect(this, &Session::runAudioRender, audioRender, &AudioHandler::win32Render);
 	connect(this, &Session::runAudioCapture, audioCapture, &AudioHandler::win32AudioCapture);
-	//connect(this, &Session::runServerThread, server, &UdpServer::readPendingData);
 
-	//serverThread.start();
 	captureThread.start();
 	renderThread.start();
 
-	//emit runServerThread();
 	emit runAudioCapture();
 	emit runAudioRender(renderBuffer);
 
@@ -47,11 +38,6 @@ Session::~Session() {
 	renderThread.quit();
 	renderThread.wait();
 	
-	serverThread.quit();
-	serverThread.wait();
-
-	delete server;
-
 	delete audioCapture;
 	delete audioRender;
 
@@ -59,10 +45,6 @@ Session::~Session() {
 	delete audioRender;
 
 	delete[] renderBuffer;
-}
-
-void Session::appendTargetEndpoint(QString address, int port) {
-	server->addTargetedEndpoint(address, port);
 }
 
 void Session::changeRenderVolume(int newVolume) {
