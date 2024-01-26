@@ -35,10 +35,9 @@
 #include <comdef.h>
 #include <mmeapi.h>
 
-#include "UdpServer.hpp"
-
 #include <boost/asio.hpp>
 
+using boost::asio::ip::udp;
 
 class AudioHandler : public QObject {
 	Q_OBJECT
@@ -63,6 +62,9 @@ public:
 public:
 	bool initialized = false;
 
+	inline void appendEndpoint(QString address, int port) {
+		endpointList.append(udp::endpoint(boost::asio::ip::make_address(address.toStdString()), port));
+	}
 
 public slots:
 	void win32AudioCapture();
@@ -93,11 +95,16 @@ private:
 
 	WAVEFORMATEX* format = nullptr;
 
+
+	//boost stuff
+	std::unique_ptr<boost::asio::io_context> ioc;
+	std::unique_ptr<udp::resolver> resolver;
+
+	QList<udp::endpoint> endpointList;
+
 	std::string targetAddress, targetPort;
 
 	int CURRENT_COINIT = COINIT_SPEED_OVER_MEMORY;
-
-
 	const int REFTIMES_PER_MILLISEC = 10000;
 	const int REFTIMES_PER_SEC = 10000000;
 

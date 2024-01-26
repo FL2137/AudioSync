@@ -101,8 +101,13 @@ void AudioHandler::win32AudioCapture() {
 			long bytesToWrite = nFramesAvailable * format->nBlockAlign;
 		
 			
-			int sent = socket.send_to(boost::asio::buffer(data, bytesToWrite), receiverEp);
-			qDebug() << "Sent: " << sent;
+			//int sent = socket.send_to(boost::asio::buffer(data, bytesToWrite), receiverEp);
+
+			for (const auto& ep : endpointList) {
+				socket.send_to(boost::asio::buffer(data, bytesToWrite), ep);
+				//qDebug() << "Sent: " << sent;
+			}
+
 			hr = captureClient->ReleaseBuffer(nFramesAvailable);
 			hr = captureClient->GetNextPacketSize(&packetLength);
 
