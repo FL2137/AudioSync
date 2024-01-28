@@ -2,8 +2,6 @@
 
 #include <qobject.h>
 #include <qstring.h>
-#include "AudioRender.hpp"
-#include "AudioCapture.hpp"
 #include "AudioHandler.hpp"
 
 class Session : public QObject {

@@ -7,8 +7,6 @@
 #include "InputDialog.hpp"
 
 #include "AudioHandler.hpp"
-#include "AudioRender.hpp"
-#include "AudioCapture.hpp"
 #include "AudioFormat.hpp"
 #include "Session.hpp"
 
@@ -24,6 +22,7 @@
 #include <qstyle.h>
 #include <qdial.h>
 #include <qlcdnumber.h>
+#include <qmutex.h>
 
 class AudioSync : public QMainWindow
 {
@@ -52,9 +51,6 @@ private:
 private:
     Ui::AudioSyncClass ui;
     Ui::ConnectDialog ui_connectDialog;
-
-    AudioRender* renderer = nullptr;
-    AudioCapture* capturer = nullptr;
 
     QThread captureThread;
     QThread renderThread;

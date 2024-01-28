@@ -1,6 +1,6 @@
 #include "AudioSync.h"
 
-QList<QString> listLocalAdresses() {
+QList<QString> listLocalAddresses() {
     using boost::asio::ip::tcp;
     
     QList<QString> addressList = {};
@@ -10,8 +10,10 @@ QList<QString> listLocalAdresses() {
     tcp::resolver::iterator iter = resolver.resolve(query);
     tcp::resolver::iterator end;
     while (iter != end) {
-        tcp::end
+        tcp::endpoint ep = *iter++;
+        addressList.append(QString::fromStdString(ep.address().to_string()));
     }
+    return addressList;
 }
 
 
@@ -25,7 +27,7 @@ AudioSync::AudioSync(QWidget *parent)
     ui.portLineEdit->setText("3002");
     ui.hostLineEdit->setText("192.168.1.109");
 
-    ui.addressList->addItems(UdpServer::listLocalAddresses()); 
+    ui.addressList->addItems(listLocalAddresses()); 
 
     localAddress = ui.addressList->item(ui.addressList->count() - 1)->text(); //last address listed is usually main connection
     ui.addressLabel->setText("Current address is: " + localAddress);
@@ -65,9 +67,6 @@ AudioSync::~AudioSync() {
     captureThread.wait();
 
     //lala
-    delete server;
-    delete capturer;
-    delete renderer;
     delete session;
 }
 
@@ -77,8 +76,6 @@ AudioSync::~AudioSync() {
 //slots and signals
 void AudioSync::startPlaying() {
     emit runRenderingThread(renderBuffer);
-    server->runSync = true;
-    server->readPendingData();
 }
 
 void AudioSync::startRecording() {
