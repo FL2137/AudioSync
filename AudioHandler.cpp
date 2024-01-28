@@ -11,6 +11,14 @@ AudioHandler::~AudioHandler() {
 	delete format;
 }
 
+struct period_t { //no reason for this btw
+	uint32_t min;
+	uint32_t max;
+	uint32_t _default;
+	uint32_t fundamental;
+};
+
+
 void AudioHandler::win32AudioCapture() {
 	HRESULT hr;
 
@@ -23,7 +31,7 @@ void AudioHandler::win32AudioCapture() {
 	uint32_t nFramesAvailable;
 	IMMDeviceEnumerator* enumerator = nullptr;
 	IMMDevice* device = nullptr;
-	IAudioClient* audioClient = nullptr;
+	IAudioClient3* audioClient = nullptr;
 	IAudioCaptureClient* captureClient = nullptr;
 	WAVEFORMATEX* format = nullptr;
 	uint32_t packetLength = 0;
@@ -37,7 +45,7 @@ void AudioHandler::win32AudioCapture() {
 	hr = enumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device);
 	enumerator->Release();
 
-	hr = device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&audioClient);
+	hr = device->Activate(__uuidof(IAudioClient3), CLSCTX_ALL, NULL, (void**)&audioClient);
 
 	hr = audioClient->GetMixFormat(&format);
 
@@ -53,6 +61,18 @@ void AudioHandler::win32AudioCapture() {
 	format->nBlockAlign = (format->nChannels * format->wBitsPerSample) / 8;
 	format->nAvgBytesPerSec = format->nSamplesPerSec * format->nBlockAlign;
 	format->cbSize = 0;
+
+	period_t period;
+
+	
+	hr = audioClient->GetSharedModeEnginePeriod(format, &period._default, &period.fundamental, &period.min, &period.max);
+	//print probed periodicities
+	qDebug() << "win32AudioCapture()::Probed periods {";
+	qDebug() << "Min: " << period.min;
+	qDebug() << "Max: " << period.max;
+	qDebug() << "Default: " << period._default;
+	qDebug() << "Fundamental: " << period.fundamental;
+	qDebug() << "}";
 
 	int errorStop;
 
@@ -133,8 +153,8 @@ void AudioHandler::win32Render(char *buffer) {
 	deviceEnum->Release();
 
 
-	IAudioClient* audioClient;
-	hr = device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&audioClient);
+	IAudioClient3* audioClient;
+	hr = device->Activate(__uuidof(IAudioClient3), CLSCTX_ALL, nullptr, (void**)&audioClient);
 	device->Release();
 
 
@@ -153,6 +173,20 @@ void AudioHandler::win32Render(char *buffer) {
 	format->nBlockAlign = (format->nChannels * format->wBitsPerSample) / 8;
 	format->nAvgBytesPerSec = format->nSamplesPerSec * format->nBlockAlign;
 	format->cbSize = 0;
+
+	period_t period;
+
+	hr = audioClient->GetSharedModeEnginePeriod(format, &period._default, &period.fundamental, &period.min, &period.max);
+	//print probed periodicities
+	qDebug() << "win32AudioRender()::Probed periods {";
+	qDebug() << "Min: " << period.min;
+	qDebug() << "Max: " << period.max;
+	qDebug() << "Default: " << period._default;
+	qDebug() << "Fundamental: " << period.fundamental;
+	qDebug() << "}";
+
+
+
 	REFERENCE_TIME requestedBufferDuration = REFTIMES_PER_SEC;
 
 	DWORD streamFlags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
@@ -181,17 +215,8 @@ void AudioHandler::win32Render(char *buffer) {
 	////////////////////////////asio here
 	boost::asio::io_context ioc;
 	udp::socket socket(ioc, udp::endpoint(udp::v4(), 3002));
-
 	////////////////////////////
 
-	/*char* buffer = new char[BUFFER_SIZE  * 1000];
-	for (int i = 0; i < 1000; i++) {
-		udp::endpoint ep;
-		int recv = socket.receive_from(boost::asio::buffer(buffer+samplesIterator, BUFFER_SIZE), ep);
-		samplesIterator += BUFFER_SIZE;
-		std::cout << "i;" << i << std::endl;
-	}*/
-	//char* buffer = new char[BUFFER_SIZE];
 	while (run) {
 
 		uint32_t bufferPadding;
@@ -209,16 +234,7 @@ void AudioHandler::win32Render(char *buffer) {
 		int rcv = socket.receive_from(boost::asio::buffer(renderBuffer, bytesToWrite), ep);
 		std::cout << "received: " << rcv << std::endl;
 		
-
-
-		/*std::memcpy(renderBuffer, buffer + samplesIterator, bytesToWrite);
-		samplesIterator += bytesToWrite;
-		if (samplesIterator >= (BUFFER_SIZE * 1000) - 1764)
-			run = false;*/
-
-
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
-
 	}
 	//uninitialize COM drivers
 	socket.close();
