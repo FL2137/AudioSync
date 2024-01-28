@@ -11,7 +11,8 @@ QList<QString> listLocalAddresses() {
     tcp::resolver::iterator end;
     while (iter != end) {
         tcp::endpoint ep = *iter++;
-        addressList.append(QString::fromStdString(ep.address().to_string()));
+        if(ep.address().is_v4())
+            addressList.append(QString::fromStdString(ep.address().to_string()));
     }
     return addressList;
 }
