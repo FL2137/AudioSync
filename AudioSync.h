@@ -10,7 +10,9 @@
 #include "AudioRender.hpp"
 #include "AudioCapture.hpp"
 #include "AudioFormat.hpp"
-#include "UdpServer.hpp"
+#include "Session.hpp"
+
+#include <boost/asio.hpp>
 
 #include <qaudiosink.h>
 #include <qrandom.h>
@@ -57,8 +59,6 @@ private:
     QThread captureThread;
     QThread renderThread;
 
-    UdpServer* server = nullptr;
-
     QMutex captureMutex;
     QMutex renderMutex;
     QMutex serverMutex;
@@ -68,10 +68,11 @@ private:
 //public variables
 public:
     QByteArray captureBuffer;
-    char* renderBuffer;
+    char* renderBuffer; 
 
     ConnectDialogClass *connectDialog;
     QString address;
     int port;
 
+    Session* session;
 };

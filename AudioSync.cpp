@@ -1,8 +1,26 @@
 #include "AudioSync.h"
+
+QList<QString> listLocalAdresses() {
+    using boost::asio::ip::tcp;
+    
+    QList<QString> addressList = {};
+    boost::asio::io_service ios;
+    tcp::resolver resolver(ios);
+    tcp::resolver::query query(boost::asio::ip::host_name(), "");
+    tcp::resolver::iterator iter = resolver.resolve(query);
+    tcp::resolver::iterator end;
+    while (iter != end) {
+        tcp::end
+    }
+}
+
+
+
 AudioSync::AudioSync(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
+
 
     ui.portLineEdit->setText("3002");
     ui.hostLineEdit->setText("192.168.1.109");
@@ -25,8 +43,8 @@ void AudioSync::uiConnects() {
     });
 
     //connect dial to volume function and "LCD" display
-    connect(ui.volumeDial, &QDial::valueChanged, session, [&](int value) {
-        session->changeCaptureVolume(value);
+    connect(ui.volumeDial, &QDial::valueChanged, this, [=](int value) {
+        session->changeRenderVolume(value);
     });
 
     connect(ui.dialogButton, &QPushButton::clicked, this, &AudioSync::runConnectDialog);
