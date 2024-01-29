@@ -70,5 +70,5 @@ public:
     QString address;
     int port;
 
-    Session* session;
+    std::unique_ptr<Session> session;
 };

@@ -17,25 +17,21 @@ QList<QString> listLocalAddresses() {
     return addressList;
 }
 
-
-
 AudioSync::AudioSync(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
 
-
     ui.portLineEdit->setText("3002");
-    ui.hostLineEdit->setText("192.168.1.109");
 
     ui.addressList->addItems(listLocalAddresses()); 
 
     localAddress = ui.addressList->item(ui.addressList->count() - 1)->text(); //last address listed is usually main connection
     ui.addressLabel->setText("Current address is: " + localAddress);
+    ui.hostLineEdit->setText(localAddress);
 
     uiConnects();
 }
-
 
 void AudioSync::uiConnects() {
     //connect list of IP addresses
@@ -53,7 +49,8 @@ void AudioSync::uiConnects() {
     connect(ui.dialogButton, &QPushButton::clicked, this, &AudioSync::runConnectDialog);
 
     connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
-        session = new Session(localAddress, ui.portLineEdit->text().toInt());
+        session = std::make_unique<Session>(localAddress, ui.portLineEdit->text().toInt());
+       // session = new Session(localAddress, ui.portLineEdit->text().toInt());
         session->startSession();
     });
 
@@ -66,13 +63,9 @@ AudioSync::~AudioSync() {
 
     captureThread.quit();
     captureThread.wait();
-
-    //lala
-    delete session;
 }
 
 //functions
-
 
 //slots and signals
 void AudioSync::startPlaying() {
