@@ -54,6 +54,12 @@ void AudioSync::uiConnects() {
         session->startSession();
     });
 
+    connect(ui.testRequest, &QPushButton::clicked, this, [this]() {
+        std::string req = "test123";
+        std::string resp;
+        TcpClient::send(req, resp);
+        qDebug() << "Server responded with: " << resp;
+    });
 }
 
 AudioSync::~AudioSync() {

@@ -24,6 +24,8 @@
 #include <qlcdnumber.h>
 #include <qmutex.h>
 
+#include "TcpServer.hpp"
+
 class AudioSync : public QMainWindow
 {
     Q_OBJECT
