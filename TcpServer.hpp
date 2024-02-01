@@ -3,14 +3,14 @@
 #include <boost/bind/bind.hpp>
 #include <qdebug.h>
 #include <string>
+#include <nlohmann/json.hpp>
 
+using nlohmann::json;
 using boost::asio::ip::tcp;
 
 class TcpConnection {
 
 };
-
-
 
 class TcpClient {
 
@@ -29,12 +29,20 @@ public:
 		if (error) {
 			qWarning() << error.message();
 		}
+		
+		char readBuffer[512];
 
-		socket.read_some(boost::asio::buffer(response), error);
+		size_t size = socket.read_some(boost::asio::buffer(readBuffer), error);
 		
 		if (error) {
 			qWarning() << error.message();
 		}
+
+		response = std::string(readBuffer);
+
+		response.erase(response.end()-1); //for some reason one too much char is being sent
+
+		qDebug() << response;
 
 		socket.close();
 	}
