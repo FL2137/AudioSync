@@ -8,6 +8,7 @@ AudioHandler::AudioHandler(MODE mode) {
 
 AudioHandler::~AudioHandler() {
 
+	delete audioClient;
 	delete format;
 }
 
@@ -64,7 +65,6 @@ void AudioHandler::win32AudioCapture() {
 
 	period_t period;
 
-	
 	hr = audioClient->GetSharedModeEnginePeriod(format, &period._default, &period.fundamental, &period.min, &period.max);
 	//print probed periodicities
 	qDebug() << "win32AudioCapture()::Probed periods {";
@@ -100,17 +100,12 @@ void AudioHandler::win32AudioCapture() {
 	//udp part
 	////////////////////////////////////
 	boost::asio::io_context ioc;
-	udp::resolver resolver(ioc);
-	udp::endpoint receiverEp = *resolver.resolve(udp::v4(), "192.168.1.105", "3002");
 
 	udp::socket socket(ioc);
-
 	socket.open(udp::v4());
-
 
 	////////////////////////////////////
 	while (!finish) {
-
 		hr = captureClient->GetNextPacketSize(&packetLength);
 		while (packetLength != 0) {
 
@@ -120,12 +115,10 @@ void AudioHandler::win32AudioCapture() {
 
 			long bytesToWrite = nFramesAvailable * format->nBlockAlign;
 		
-			
-			//int sent = socket.send_to(boost::asio::buffer(data, bytesToWrite), receiverEp);
-
-			for (const auto& ep : endpointList) {
-				socket.send_to(boost::asio::buffer(data, bytesToWrite), ep);
-				//qDebug() << "Sent: " << sent;
+			if (data != NULL && bytesToWrite != 0) {
+				for (const auto& ep : endpointList) {
+					socket.send_to(boost::asio::buffer(data, bytesToWrite), ep);
+				}
 			}
 
 			hr = captureClient->ReleaseBuffer(nFramesAvailable);
@@ -142,6 +135,10 @@ void AudioHandler::win32AudioCapture() {
 	CoUninitialize();
 }
 
+void AudioHandler::handleAsyncReceive(const boost::system::error_code& error, std::size_t bytesTransferred) {
+
+}
+
 void AudioHandler::win32Render(char *buffer) {
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_SPEED_OVER_MEMORY);
 
@@ -152,11 +149,8 @@ void AudioHandler::win32Render(char *buffer) {
 	hr = deviceEnum->GetDefaultAudioEndpoint(eRender, eConsole, &device);
 	deviceEnum->Release();
 
-
-	IAudioClient3* audioClient;
 	hr = device->Activate(__uuidof(IAudioClient3), CLSCTX_ALL, nullptr, (void**)&audioClient);
 	device->Release();
-
 
 	WAVEFORMATEX* format;
 
@@ -186,7 +180,6 @@ void AudioHandler::win32Render(char *buffer) {
 	qDebug() << "}";
 
 
-
 	REFERENCE_TIME requestedBufferDuration = REFTIMES_PER_SEC;
 
 	DWORD streamFlags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
@@ -201,8 +194,8 @@ void AudioHandler::win32Render(char *buffer) {
 	uint32_t bufferSizeFrames = 0;
 	hr = audioClient->GetBufferSize(&bufferSizeFrames);
 	hrHandler(hr);
-
-	REFERENCE_TIME hnsActualDuration = (double)10000000 * bufferSizeFrames / format->nSamplesPerSec;
+										
+	REFERENCE_TIME hnsActualDuration = (double)REFTIMES_PER_SEC * bufferSizeFrames / format->nSamplesPerSec;
 
 	audioClient->Start();
 
@@ -222,7 +215,7 @@ void AudioHandler::win32Render(char *buffer) {
 		uint32_t bufferPadding;
 		audioClient->GetCurrentPadding(&bufferPadding);
 
-		uint32_t soundBufferLatency = bufferSizeFrames / 50;
+		uint32_t soundBufferLatency = bufferSizeFrames / 40;
 		uint32_t nFramesToWrite = soundBufferLatency - bufferPadding;
 
 		uint16_t* renderBuffer;
@@ -231,8 +224,18 @@ void AudioHandler::win32Render(char *buffer) {
 
 		int bytesToWrite = nFramesToWrite * format->nBlockAlign;
 		udp::endpoint ep;
-		int rcv = socket.receive_from(boost::asio::buffer(renderBuffer, bytesToWrite), ep);
-		std::cout << "received: " << rcv << std::endl;
+
+
+		/*socket.async_receive_from(
+			boost::asio::buffer(renderBuffer, bytesToWrite),
+			ep,
+			boost::bind(&AudioHandler::handleAsyncReceive,
+			this,
+			boost::asio::placeholders::error,
+			boost::asio::placeholders::bytes_transferred)
+		);*/
+		int rcv = socket.receive(boost::asio::buffer(renderBuffer, bytesToWrite));
+		//int rcv = socket.receive_from(boost::asio::buffer(renderBuffer, bytesToWrite), ep);
 		
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 	}
@@ -247,19 +250,22 @@ void AudioHandler::win32Render(char *buffer) {
 
 float AudioHandler::changeVolume(float newVolume) {
 	IAudioStreamVolume* audioVolume;
+	if (audioClient != nullptr) {
+		audioClient->GetService(__uuidof(IAudioStreamVolume), reinterpret_cast<void**>(&audioVolume));
+		float value;
+		float* volumes = new float[format->nChannels];
+		for (int i = 0; i < format->nChannels; i++)
+			volumes[i] = (newVolume / 10.f);
 
-	audioClient->GetService(__uuidof(IAudioStreamVolume), reinterpret_cast<void**>(&audioVolume));
-	float value;
-	float* volumes = new float[format->nChannels];
-	for (int i = 0; i < format->nChannels; i++)
-		volumes[i] = (newVolume/10.f);
+		audioVolume->SetAllVolumes(format->nChannels, volumes);
+		audioVolume->GetChannelVolume(0, &value);
 
-	audioVolume->SetAllVolumes(format->nChannels, volumes);
-	audioVolume->GetChannelVolume(0, &value);
-	
-	qDebug() << "Setting Volume to: " << value;
-	audioVolume->Release();
-	return value * 10;
+		qDebug() << "Setting Volume to: " << value;
+		audioVolume->Release();
+		return value * 10;
+	}
+	else
+		return -1;
 }
 
 WAVEFORMATEX* AudioHandler::checkFormatSupport() {

@@ -1,5 +1,4 @@
 #pragma once
-#define _USE_MATH_DEFINES
 #define WIN32_LEAN_AND_MEAN
 
 #include <stdio.h>
@@ -36,6 +35,8 @@
 #include <mmeapi.h>
 
 #include <boost/asio.hpp>
+#include <boost/bind/bind.hpp>
+#include <boost/system.hpp>
 
 using boost::asio::ip::udp;
 
@@ -63,7 +64,11 @@ public:
 	bool initialized = false;
 
 	inline void appendEndpoint(QString address, int port) {
-		endpointList.append(udp::endpoint(boost::asio::ip::make_address(address.toStdString()), port));
+
+		udp::endpoint ep(boost::asio::ip::make_address(address.toStdString()), port);
+		qDebug() << "Added endpoint: " << ep.address().to_string() << ":" << ep.port();
+
+		endpointList.append(ep);
 	}
 
 public slots:
@@ -80,6 +85,8 @@ private:
 
 	void initWASAPI(MODE mode);
 	void hrHandler(HRESULT hr);
+	void handleAsyncReceive(const boost::system::error_code& error, std::size_t bytesTransferred);
+
 
 	WAVEFORMATEX* checkFormatSupport();
 
