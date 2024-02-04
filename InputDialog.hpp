@@ -1,6 +1,5 @@
 #pragma once
 
-#include "UdpServer.hpp"
 #include "AudioSync.h"
 #include "Session.hpp"
 
@@ -32,14 +31,6 @@ public:
 		dialog.show();
 		dialog.setFocus();
 	}
-
-	~ConnectDialogClass() {
-		delete combo;
-		delete lineEdit;
-	}
-
-	QComboBox* combo = nullptr;
-	QLineEdit* lineEdit = nullptr;
 
 private:
 	Ui::ConnectDialog ui_conDialog;
