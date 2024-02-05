@@ -3,6 +3,7 @@
 #include <qobject.h>
 #include <qstring.h>
 #include "AudioHandler.hpp"
+#include "TcpServer.hpp"
 
 class Session : public QObject {
 
@@ -20,6 +21,8 @@ public:
 
 	void appendTargetEndpoint(QString address, int port);
 
+	void setUserCreds(QString nick);
+
 public slots:
 	void changeRenderVolume(int newVolume);
 	void changeCaptureVolume(int newVolume);
@@ -28,10 +31,17 @@ signals:
 	void runAudioRender(char* renderBuffer);
 	void runAudioCapture();
 	void runServerThread();
+	void runLoginDialog();
 
 private:
 
-	int id;
+	void login();
+
+public:
+	int uid;
+
+private:
+
 
 	AudioHandler* audioCapture;
 	AudioHandler* audioRender;
@@ -46,4 +56,5 @@ private:
 	int port;
 	QString address;
 
+	QString nick;
 };

@@ -2,8 +2,6 @@
 #include <iostream>
 
 Session::Session(QString _address, int _port) {
-
-
 	audioCapture = new AudioHandler(AudioHandler::MODE::CAPTURE);
 	audioRender = new AudioHandler(AudioHandler::MODE::RENDER);
 	renderBuffer = new char[BUFFERSIZE] {0};
@@ -26,6 +24,7 @@ void Session::startSession() {
 	emit runAudioCapture();
 	emit runAudioRender(renderBuffer);
 
+	emit runLoginDialog();
 
 	qDebug() << "Session started properly";
 }
@@ -57,4 +56,8 @@ void Session::changeCaptureVolume(int newVolume) {
 
 void Session::appendTargetEndpoint(QString address, int port) {
 	audioCapture->appendEndpoint(address, port);
+}
+
+void Session::setUserCreds(QString nick) {
+	this->nick = nick;
 }
