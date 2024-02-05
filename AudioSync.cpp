@@ -34,6 +34,8 @@ AudioSync::AudioSync(QWidget *parent)
 }
 
 void AudioSync::uiConnects() {
+
+
     //connect list of IP addresses
     connect(ui.addressList, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
         qDebug() << "Address set!";
@@ -50,14 +52,17 @@ void AudioSync::uiConnects() {
 
     connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
         session = std::make_unique<Session>(localAddress, ui.portLineEdit->text().toInt());
-       // session = new Session(localAddress, ui.portLineEdit->text().toInt());
+        connect(session.get(), &Session::runLoginDialog, this, &AudioSync::runLoginDialog);
+
+        
+        // session = new Session(localAddress, ui.portLineEdit->text().toInt());
         session->startSession();
+
     });
 
     connect(ui.testRequest, &QPushButton::clicked, this, [this]() {
-        std::string req = "test123";
+        std::string req = ui.hostLineEdit->text().toStdString();
         std::string resp;
-        TcpClient::send(req, resp);
         qDebug() << "Server responded with: " << resp;
     });
 }
@@ -85,4 +90,9 @@ void AudioSync::startRecording() {
 
 void AudioSync::runConnectDialog() {
     connectDialog = new ConnectDialogClass(*session, this);
+}
+
+void AudioSync::runLoginDialog() {
+    qDebug() << "AudioSync::runLoginDialog() called";
+    loginDialog = new LoginDialogClass(*session, this);
 }
