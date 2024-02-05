@@ -35,8 +35,6 @@ signals:
 
 private:
 
-	void login();
-
 public:
 	int uid;
 

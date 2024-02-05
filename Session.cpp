@@ -8,6 +8,7 @@ Session::Session(QString _address, int _port) {
 
 	address = _address;
 	port = _port;
+
 }
 
 void Session::startSession() {
