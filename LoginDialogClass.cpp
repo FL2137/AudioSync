@@ -39,7 +39,7 @@ LoginDialogClass::LoginDialogClass(Session& session, QWidget* parent) : QDialog(
 			ui.loginEdit->setText("");
 			ui.passwordEdit->setText("");
 		}
-		});
+	});
 	dialog.show();
 	dialog.setFocus();
 }
