@@ -369,3 +369,10 @@ FodyWeavers.xsd
 /AudioSync.vcxproj
 /logClient.txt
 /logSERVER.txt
+/SettingsWidget.ui
+/packages.config
+/log.txt
+/incomingDialog.ui
+/LoginDialog.ui
+/Avatars.qrc
+/userAvatar.png
