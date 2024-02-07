@@ -179,7 +179,6 @@ void AudioHandler::win32Render(char *buffer) {
 	qDebug() << "Fundamental: " << period.fundamental;
 	qDebug() << "}";
 
-
 	REFERENCE_TIME requestedBufferDuration = REFTIMES_PER_SEC;
 
 	DWORD streamFlags = (AUDCLNT_STREAMFLAGS_RATEADJUST | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY);
@@ -204,7 +203,6 @@ void AudioHandler::win32Render(char *buffer) {
 
 	bool run = true;
 
-
 	////////////////////////////asio here
 	boost::asio::io_context ioc;
 	udp::socket socket(ioc, udp::endpoint(udp::v4(), 3002));
@@ -215,7 +213,7 @@ void AudioHandler::win32Render(char *buffer) {
 		uint32_t bufferPadding;
 		audioClient->GetCurrentPadding(&bufferPadding);
 
-		uint32_t soundBufferLatency = bufferSizeFrames / 40;
+		uint32_t soundBufferLatency = bufferSizeFrames / 50;
 		uint32_t nFramesToWrite = soundBufferLatency - bufferPadding;
 
 		uint16_t* renderBuffer;
@@ -224,18 +222,7 @@ void AudioHandler::win32Render(char *buffer) {
 
 		int bytesToWrite = nFramesToWrite * format->nBlockAlign;
 		udp::endpoint ep;
-
-
-		/*socket.async_receive_from(
-			boost::asio::buffer(renderBuffer, bytesToWrite),
-			ep,
-			boost::bind(&AudioHandler::handleAsyncReceive,
-			this,
-			boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred)
-		);*/
-		int rcv = socket.receive(boost::asio::buffer(renderBuffer, bytesToWrite));
-		//int rcv = socket.receive_from(boost::asio::buffer(renderBuffer, bytesToWrite), ep);
+		int rcv = socket.receive_from(boost::asio::buffer(renderBuffer, bytesToWrite), ep);
 		
 		renderClient->ReleaseBuffer(nFramesToWrite, 0);
 	}
@@ -245,7 +232,6 @@ void AudioHandler::win32Render(char *buffer) {
 	audioClient->Release();
 	renderClient->Release();
 	CoUninitialize();
-	
 }
 
 float AudioHandler::changeVolume(float newVolume) {
