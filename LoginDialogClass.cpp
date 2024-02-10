@@ -35,6 +35,7 @@ LoginDialogClass::LoginDialogClass(Session& session, QWidget* parent) : QDialog(
 			response = json::parse(responseStr);
 			if (response["ok"] == "OK") {
 				session.uid = response["uid"].get<int>();
+				qDebug() << "Received uid: " << session.uid;
 				dialog.close();
 			}
 			else {
