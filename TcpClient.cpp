@@ -23,13 +23,19 @@ void TcpClient::send(TcpRequest request, std::string& response) {
 
 	size_t size = socket.read_some(boost::asio::buffer(readBuffer, 512), error);
 
-	response = std::string(readBuffer, 512);
+	//VERY BAD but works for now
+	for (int i = 0; i < 512; i++) {
+		if (readBuffer[i] == '}') {
+			readBuffer[i + 1] = '\0';
+			break;
+		}
+	}
+
+	response = std::string(readBuffer);
 
 	if (error) {
 		qWarning() << error.message();
 	}
-	qDebug() << response;
 
 	socket.close();
-
 }

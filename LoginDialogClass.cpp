@@ -26,19 +26,27 @@ LoginDialogClass::LoginDialogClass(Session& session, QWidget* parent) : QDialog(
 
 		request.data = data;
 		std::string responseStr;
+		json response;
 
 		TcpClient::send(request, responseStr);
-		json response = json::parse(responseStr);
 
-		if (response["type"] == "OK") {
-			session.uid = response["uid"].get<int>();
-			this->close();
+		if (json::accept(responseStr)) {
+
+			response = json::parse(responseStr);
+			if (response["ok"] == "OK") {
+				session.uid = response["uid"].get<int>();
+				dialog.close();
+			}
+			else {
+				ui.badCredsLabel->setText("Incorrect login or password");
+				ui.loginEdit->setText("");
+				ui.passwordEdit->setText("");
+			}
 		}
 		else {
-			ui.badCredsLabel->setText("Incorrect login or password");
-			ui.loginEdit->setText("");
-			ui.passwordEdit->setText("");
+			qDebug() << "Eh";
 		}
+
 	});
 	dialog.show();
 	dialog.setFocus();
