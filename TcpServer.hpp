@@ -5,10 +5,10 @@
 #include <qdebug.h>
 #include <string>
 #include <nlohmann/json.hpp>
+#include <functional>
 
 using nlohmann::json;
 using boost::asio::ip::tcp;
-
 
 const std::string SERVER_ADDRESS = "192.168.1.109";
 const int PORT = 3005;
@@ -84,6 +84,45 @@ private:
 
 class TcpServer {
 
+public:
+
+    TcpServer(boost::asio::io_context& _io_context, std::string address, int port, std::function<void(std::string, std::string&)> requestParser)
+        : io_context(_io_context), acceptor(io_context, tcp::endpoint(boost::asio::ip::make_address_v4(address), port))
+    {
+        this->requestParser = requestParser;
+        startAccept(requestParser);
+    }
+
+    static void asyncServer(std::string address, int port, std::function<void(std::string, std::string&)> requestParser) {
+        boost::asio::io_context ioc;
+        TcpServer server(ioc, address, port, requestParser);
+        ioc.run();
+    }
+
+
+    //priv functions
+private:
+
+    void startAccept(std::function<void(std::string, std::string&)> f) {
+        TcpConnection::pointer newConnection = TcpConnection::create(io_context, f);
+
+        acceptor.async_accept(newConnection->socket(),
+            boost::bind(&TcpServer::handleAccept, this, newConnection, boost::asio::placeholders::error));
+    }
+
+    void handleAccept(TcpConnection::pointer newConnection, const boost::system::error_code& error) {
+        if (!error) {
+            newConnection->start();
+        }
+
+        startAccept(requestParser);
+    }
+
+    //priv variables
+private:
+    boost::asio::io_context& io_context;
+    tcp::acceptor acceptor;
+    std::function<void(std::string, std::string&)> requestParser;
 };
 
 class TcpRequest {
