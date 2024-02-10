@@ -3,17 +3,9 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_AudioSync.h"
 #include "ui_ConnectDialog.h"
-#include "ui_LoginDialog.h"
-
-#include "InputDialog.hpp"
-#include "LoginDialogClass.hpp"
-
-#include "AudioHandler.hpp"
-#include "AudioFormat.hpp"
 #include "Session.hpp"
-
+#include "AudioHandler.hpp"
 #include <boost/asio.hpp>
-
 #include <qaudiosink.h>
 #include <qrandom.h>
 #include <qthreadpool.h>
@@ -27,6 +19,10 @@
 #include <qmutex.h>
 
 #include "TcpServer.hpp"
+#include "TcpClient.hpp"
+
+#include "InputDialog.hpp"
+#include "LoginDialogClass.hpp"
 
 class AudioSync : public QMainWindow
 {

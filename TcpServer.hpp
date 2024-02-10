@@ -6,12 +6,30 @@
 #include <string>
 #include <nlohmann/json.hpp>
 #include <functional>
+#include <iostream>
 
 using nlohmann::json;
 using boost::asio::ip::tcp;
 
 const std::string SERVER_ADDRESS = "192.168.1.109";
 const int PORT = 3005;
+
+class TcpRequest {
+public:
+    std::string type;
+    int uid;
+    json data;
+
+
+    std::string stringify() {
+        json json;
+        json["type"] = type;
+        json["uid"] = uid;
+        json["data"] = data.dump();
+        return json.dump();
+    }
+};
+
 
 class TcpConnection : public boost::enable_shared_from_this<TcpConnection> {
 public:
@@ -93,9 +111,13 @@ public:
         startAccept(requestParser);
     }
 
-    static void asyncServer(std::string address, int port, std::function<void(std::string, std::string&)> requestParser) {
+
+    //this runs the server and here is the main request/response handling function
+    static void asyncServer(std::string address, int port, const std::string &request, std::string &response) {
         boost::asio::io_context ioc;
-        TcpServer server(ioc, address, port, requestParser);
+        TcpServer server(ioc, address, port, [&](std::string request, std::string response) {
+
+        });
         ioc.run();
     }
 
@@ -125,19 +147,4 @@ private:
     std::function<void(std::string, std::string&)> requestParser;
 };
 
-class TcpRequest {
-public:
-	std::string type;
-	int uid;
-	json data;
-
-
-	std::string stringify() {
-		json json;
-		json["type"] = type;
-		json["uid"] = uid;
-		json["data"] = data.dump();
-		return json.dump();
-	}
-};
 

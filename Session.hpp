@@ -3,7 +3,6 @@
 #include <qobject.h>
 #include <qstring.h>
 #include "AudioHandler.hpp"
-#include "TcpServer.hpp"
 
 class Session : public QObject {
 

@@ -32,8 +32,6 @@ AudioSync::AudioSync(QWidget *parent)
 
 void AudioSync::uiConnects() {
 
-
-
     //connect dial to volume function and "LCD" display
     connect(ui.volumeDial, &QDial::valueChanged, this, [=](int value) {
         session->changeRenderVolume(value);

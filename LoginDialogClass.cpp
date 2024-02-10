@@ -1,5 +1,5 @@
 #include "LoginDialogClass.hpp"
-
+#include "TcpClient.hpp"
 
 
 LoginDialogClass::LoginDialogClass(Session& session, QWidget* parent) : QDialog(parent) {

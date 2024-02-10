@@ -1,4 +1,5 @@
 #pragma once
+
 #include <qdialog.h>
 #include <qpushbutton.h>
 #include "ui_LoginDialog.h"
