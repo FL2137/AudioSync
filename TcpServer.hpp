@@ -3,6 +3,9 @@
 #include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <qdebug.h>
+#include <qobject.h>
+#include <qtcpserver.h>
+#include <qtcpsocket.h>
 #include <string>
 #include <nlohmann/json.hpp>
 #include <functional>
@@ -100,9 +103,11 @@ private:
     tcp::socket _socket;
 };
 
-class TcpServer {
+class TcpServer : public QObject {
 
-public:
+    Q_OBJECT
+
+private:
 
     TcpServer(boost::asio::io_context& _io_context, std::string address, int port, std::function<void(std::string, std::string&)> requestParser)
         : io_context(_io_context), acceptor(io_context, tcp::endpoint(boost::asio::ip::make_address_v4(address), port))
@@ -111,19 +116,12 @@ public:
         startAccept(requestParser);
     }
 
-
-    //this runs the server and here is the main request/response handling function
-    static void asyncServer(std::string address, int port, const std::string &request, std::string &response) {
-        boost::asio::io_context ioc;
-        TcpServer server(ioc, address, port, [&](std::string request, std::string response) {
-
-        });
-        ioc.run();
-    }
-
-
+public slots:
+    
     //priv functions
 private:
+
+    
 
     void startAccept(std::function<void(std::string, std::string&)> f) {
         TcpConnection::pointer newConnection = TcpConnection::create(io_context, f);
@@ -148,3 +146,19 @@ private:
 };
 
 
+
+class Server : public QObject {
+
+    Q_OBJECT
+
+public:
+    Server(std::function<void(std::string, std::string&)> parseFun, QObject *parent);
+
+public slots:
+    void newConnection();
+
+
+private:
+    std::function<void(std::string, std::string&)> parseFunction;
+    QTcpServer *tcpServer;
+};
