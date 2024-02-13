@@ -4,7 +4,7 @@
 #include <qpushbutton.h>
 #include "ui_LoginDialog.h"
 #include "Session.hpp"
-#include "TcpServer.hpp"
+#include "TcpClient.hpp"
 
 class LoginDialogClass : public QDialog {
 

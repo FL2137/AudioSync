@@ -1,5 +1,4 @@
 #include "LoginDialogClass.hpp"
-#include "TcpClient.hpp"
 
 
 LoginDialogClass::LoginDialogClass(Session& session, QWidget* parent) : QDialog(parent) {
@@ -45,7 +44,7 @@ LoginDialogClass::LoginDialogClass(Session& session, QWidget* parent) : QDialog(
 			}
 		}
 		else {
-			qDebug() << "Eh";
+			qWarning() << "Invalid response json";
 		}
 
 	});
