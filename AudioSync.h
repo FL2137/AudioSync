@@ -17,6 +17,7 @@
 #include <qdial.h>
 #include <qlcdnumber.h>
 #include <qmutex.h>
+#include <functional>
 
 #include "TcpServer.hpp"
 #include "TcpClient.hpp"
@@ -46,6 +47,7 @@ signals:
 //private functions
 private:
 
+    void runServer();
     void uiConnects();
 
 //private variables

@@ -24,8 +24,9 @@ AudioSync::AudioSync(QWidget *parent)
 
     QStringList addressList = listLocalAddresses();
 
-
     localAddress = addressList[addressList.count() - 1];
+
+    runServer();
 
     uiConnects();
 }
@@ -66,6 +67,17 @@ AudioSync::~AudioSync() {
 
 //functions
 
+void AudioSync::runServer() {
+
+    auto serverFoo = [&](std::string request, std::string& response) {
+        qDebug() << "'fiopwmanpofimawpomfawpomfopawfa";
+    };
+
+    Server server(serverFoo, this); 
+}
+
+
+
 //slots and signals
 void AudioSync::startPlaying() {
     emit runRenderingThread(renderBuffer);
@@ -74,7 +86,6 @@ void AudioSync::startPlaying() {
 void AudioSync::startRecording() {
     emit runRecordingThread();
 }
-
 
 void AudioSync::runConnectDialog() {
     connectDialog = new ConnectDialogClass(*session, this);
