@@ -54,6 +54,26 @@ void AudioSync::uiConnects() {
     connect(ui.testRequest, &QPushButton::clicked, this, [this]() {
         
     });
+
+    connect(ui.createRoomButton, &QPushButton::clicked, this, [this]() {
+            
+        std::string response;
+
+        TcpRequest request;
+        request.type = "CREATEROOM";
+        request.uid = session.get()->uid;
+
+        TcpClient::send(request, response);
+
+        if (json::accept(response)) {
+            json res = json::parse(response);
+            if (res["OK"] == "ok") {
+                session.get()->roomid = res["rid"].get<int>();
+                
+                //put own AvatarWidget into room lobby
+            }
+        }
+    });
 }
 
 AudioSync::~AudioSync() {
@@ -70,7 +90,6 @@ AudioSync::~AudioSync() {
 void AudioSync::runServer() {
 
     auto serverFoo = [&](std::string request, std::string& response) {
-        qDebug() << "'fiopwmanpofimawpomfawpomfopawfa";
     };
 
     Server server(serverFoo, this); 

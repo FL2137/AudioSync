@@ -25,6 +25,7 @@
 #include "InputDialog.hpp"
 #include "LoginDialogClass.hpp"
 
+
 class AudioSync : public QMainWindow
 {
     Q_OBJECT
@@ -72,6 +73,7 @@ public:
 
     ConnectDialogClass *connectDialog;
     LoginDialogClass* loginDialog;
+
 
     QString address;
     int port;
