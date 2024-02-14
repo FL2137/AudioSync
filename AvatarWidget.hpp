@@ -1,5 +1,6 @@
+#pragma once
 #include <qwidget.h>
-
+#include <qstyle.h>
 
 class AvatarWidget : QWidget {
 
@@ -7,8 +8,7 @@ class AvatarWidget : QWidget {
 
 public:
 
-	void setupUi(QWidget* widget) {
+	void setupUi() {
 
 	}
-
 };
