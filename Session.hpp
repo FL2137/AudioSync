@@ -35,7 +35,9 @@ signals:
 private:
 
 public:
+	int roomid;
 	int uid;
+	QString nick;
 
 private:
 
@@ -53,5 +55,4 @@ private:
 	int port;
 	QString address;
 
-	QString nick;
 };
