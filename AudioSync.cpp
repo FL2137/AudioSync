@@ -51,10 +51,6 @@ void AudioSync::uiConnects() {
 
     });
 
-    connect(ui.testRequest, &QPushButton::clicked, this, [this]() {
-        
-    });
-
     connect(ui.createRoomButton, &QPushButton::clicked, this, [this]() {
             
         std::string response;
