@@ -1,7 +1,7 @@
 #include "TcpClient.hpp"
 
 
-void TcpClient::send(TcpRequest request, std::string& response) {
+void TcpClient::send(TcpRequest request, json& response) {
 
 	std::string SERVER_ADDRESS = "192.168.1.109";
 	const int PORT = 3005;
@@ -31,7 +31,15 @@ void TcpClient::send(TcpRequest request, std::string& response) {
 		}
 	}
 
-	response = std::string(readBuffer);
+	std::string responseStr = std::string(readBuffer);
+	if (json::accept(responseStr))
+		response = json::parse(responseStr);
+	else {
+		response = json("");
+		qWarning() << "Error json string";
+	}
+
+
 
 	if (error) {
 		qWarning() << error.message();

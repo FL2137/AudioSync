@@ -14,7 +14,7 @@ class TcpRequest;
 class TcpClient {
 
 public:
-	static void send(TcpRequest request, std::string& response);
+	static void send(TcpRequest request, json& response);
 
 
 };
