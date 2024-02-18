@@ -7,8 +7,8 @@ class AvatarWidget : QWidget {
 
 public:
 
-	AvatarWidget(QString file, QWidget *parent = nullptr) : QWidget(parent) {
-		this->setObjectName("avatar"+file);
+	AvatarWidget(QString file, QWidget* parent = nullptr) : QWidget(parent) {
+		this->setObjectName("avatar" + file);
 		int n = 1;
 
 		QRect parentGeo = parent->geometry();
@@ -20,6 +20,14 @@ public:
 
 
 		QString avatarPath = QDir::currentPath() + "/x64/Debug/Avatars/" + file + ".png";
+
+		QImage image(avatarPath);
+
+		//scale image if needed 
+		if (image.width() != 100 || image.height() != 100) {
+			image = image.scaled(100, 100);
+			image.save(avatarPath);
+		}
 
 		this->setStyleSheet("background-image: url(" + avatarPath + ")");
 		this->show();//needed?
