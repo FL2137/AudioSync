@@ -1,10 +1,9 @@
 #include "LoginDialogClass.hpp"
 
-
-LoginDialogClass::LoginDialogClass(Session& session, QWidget* parent) : QDialog(parent) {
+LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 	ui.setupUi(&dialog);
 
-	connect(ui.okPush, &QPushButton::clicked, this, [=, &session]() {
+	connect(ui.okPush, &QPushButton::clicked, this, [=]() {
 		if (ui.loginEdit->text().isEmpty()) {
 			ui.loginEdit->setText("Please enter your login");
 			return;
@@ -30,8 +29,7 @@ LoginDialogClass::LoginDialogClass(Session& session, QWidget* parent) : QDialog(
 		TcpClient::send(request, response);
 
 		if (response["ok"] == "OK") {
-			session.uid = response["uid"].get<int>();
-			qDebug() << "Received uid: " << session.uid;
+			uid = response["uid"].get<int>();
 			dialog.close();
 		}
 		else {

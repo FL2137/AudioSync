@@ -3,13 +3,18 @@
 #include <qdialog.h>
 #include <qpushbutton.h>
 #include "ui_LoginDialog.h"
-#include "Session.hpp"
 #include "TcpClient.hpp"
 
 class LoginDialogClass : public QDialog {
 
+	Q_OBJECT
+
 public:
-	LoginDialogClass(Session& session, QWidget* parent = nullptr);
+	LoginDialogClass(QWidget* parent = nullptr);
+	int uid;
+
+signals:
+	void passUid(int uid);
 
 private:
 	Ui::LoginDialog ui;
