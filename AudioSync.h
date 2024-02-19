@@ -13,6 +13,7 @@
 #include <qpushbutton.h>
 #include <qlistwidget.h>
 #include <qlistview.h>
+#include <qfile.h>
 #include <qstyle.h>
 #include <qdial.h>
 #include <qlcdnumber.h>
@@ -25,6 +26,7 @@
 #include "InputDialog.hpp"
 #include "LoginDialogClass.hpp"
 
+#include "AvatarWidget.hpp"
 
 class AudioSync : public QMainWindow
 {
@@ -47,7 +49,7 @@ signals:
 
 //private functions
 private:
-
+    void roomCheck();
     void runServer();
     void uiConnects();
 
@@ -74,6 +76,7 @@ public:
     ConnectDialogClass *connectDialog;
     LoginDialogClass* loginDialog;
 
+    AvatarWidget* myAvatar = nullptr;
 
     QString address;
     int port;

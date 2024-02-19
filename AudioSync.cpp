@@ -26,6 +26,8 @@ AudioSync::AudioSync(QWidget *parent)
 
     localAddress = addressList[addressList.count() - 1];
 
+    myAvatar = new AvatarWidget(this);
+
     runServer();
 
     uiConnects();
@@ -40,35 +42,23 @@ void AudioSync::uiConnects() {
 
     connect(ui.dialogButton, &QPushButton::clicked, this, &AudioSync::runConnectDialog);
 
-    connect(ui.connectButton, &QPushButton::clicked, this, [this]() {
-        int DEFAULT_PORT = 3002;
-
-        session = std::make_unique<Session>(localAddress, DEFAULT_PORT);
-        connect(session.get(), &Session::runLoginDialog, this, &AudioSync::runLoginDialog);
-        
-        // session = new Session(localAddress, ui.portLineEdit->text().toInt());
-        session->startSession();
-
-    });
+    runLoginDialog();
 
     connect(ui.createRoomButton, &QPushButton::clicked, this, [this]() {
-            
-        std::string response;
+
+        int DEFAULT_PORT = 3002;
+        session = std::make_unique<Session>(localAddress, DEFAULT_PORT);
+        session->startSession();
 
         TcpRequest request;
         request.type = "CREATEROOM";
         request.uid = session.get()->uid;
+        json response;
 
         TcpClient::send(request, response);
 
-        if (json::accept(response)) {
-            json res = json::parse(response);
-            if (res["OK"] == "ok") {
-                session.get()->roomid = res["rid"].get<int>();
-                
-                //put own AvatarWidget into room lobby
-            }
-        }
+        if (response["ok"] == "OK") 
+             session.get()->roomid = response["rid"].get<int>();
     });
 }
 
@@ -79,6 +69,9 @@ AudioSync::~AudioSync() {
 
     captureThread.quit();
     captureThread.wait();
+
+    delete loginDialog;
+    delete myAvatar;
 }
 
 //functions
@@ -86,12 +79,34 @@ AudioSync::~AudioSync() {
 void AudioSync::runServer() {
 
     auto serverFoo = [&](std::string request, std::string& response) {
+        json js;
+        if (json::accept(request)) {
+            js = json::parse(request);
+        }
+        
+
+        if (js["type"] == "NOTIFY") {
+            //call for room check
+            roomCheck();
+            response = "{'OK':'ok'}";
+        }
+
     };
 
     Server server(serverFoo, this); 
 }
 
+void AudioSync::roomCheck() {
+    TcpRequest request;
+    request.type = "ROOMCHECK";
+    json data;
+    data["uid"] = session.get()->uid;
+    data["rid"] = session.get()->roomid;
 
+    json response;
+    TcpClient::send(request, response);
+
+}
 
 //slots and signals
 void AudioSync::startPlaying() {
@@ -108,5 +123,8 @@ void AudioSync::runConnectDialog() {
 
 void AudioSync::runLoginDialog() {
     qDebug() << "AudioSync::runLoginDialog() called";
-    loginDialog = new LoginDialogClass(*session, this);
+    loginDialog = new LoginDialogClass(this);
+    connect(loginDialog, &LoginDialogClass::passUid, this, [this](int uid) {
+        this->uid = uid;
+    });
 }
