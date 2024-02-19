@@ -4,16 +4,28 @@
 #include <string>
 #include <qdir.h>
 #include <qfile.h>
+#include <qevent.h>
+#include <qfiledialog.h>
 
 #include "nlohmann/json.hpp"
 
 using nlohmann::json;
+
+
+
+class FileDialog : QFileDialog {
+
+};
+
+
 
 class AvatarWidget : QWidget {
 
 public:
 
 	AvatarWidget(QWidget* parent = nullptr) : QWidget(parent) {
+		m_parent = parent;
+
 		this->setObjectName("UserAvatar");
 
 		QFile settings(QDir::currentPath() + "/userSettings.json");
@@ -32,7 +44,6 @@ public:
 			QString path = QDir::currentPath() + "/x64/Debug/Avatars/" + QString::fromStdString(setts["avatar"].get<std::string>());
 			this->setStyleSheet("background-image: url(" + path + ")");
 		}
-
 
 		this->setGeometry(QRect(parent->geometry().width() - 210, 30, 100, 100));
 	}
@@ -66,5 +77,24 @@ public:
 	~AvatarWidget() {
 		this->destroy(true, true);
 	}
+
+
+private:
+
+	QWidget* m_parent = nullptr;
+
+
+protected:
+	
+	//onclick implementation
+	void mousePressEvent(QMouseEvent *event) override {
+		if (event->button() == Qt::MouseButton::LeftButton) {
+			QFileDialog fDialog(m_parent);
+			fDialog.show();
+
+		}
+	}
+
+
 
 };
