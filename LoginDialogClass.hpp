@@ -11,7 +11,7 @@ class LoginDialogClass : public QDialog {
 
 public:
 	LoginDialogClass(QWidget* parent = nullptr);
-	int uid;
+	int uid = -1;
 
 signals:
 	void passUid(int uid);

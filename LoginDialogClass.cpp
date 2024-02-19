@@ -3,6 +3,7 @@
 LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 	ui.setupUi(&dialog);
 
+
 	connect(ui.okPush, &QPushButton::clicked, this, [=]() {
 		if (ui.loginEdit->text().isEmpty()) {
 			ui.loginEdit->setText("Please enter your login");
@@ -30,6 +31,7 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 
 		if (response["ok"] == "OK") {
 			uid = response["uid"].get<int>();
+			emit passUid(uid);
 			dialog.close();
 		}
 		else {
