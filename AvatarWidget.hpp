@@ -107,27 +107,29 @@ protected:
 	void mousePressEvent(QMouseEvent *event) override {
 		if (event->button() == Qt::MouseButton::LeftButton) {
 			QString filename = QFileDialog::getOpenFileName(m_parent, tr("Open image"), "/", tr("Image (*.png *.jpg *.bmp)"));
-			QFile file(filename, nullptr);
-			file.open(QIODevice::ReadOnly);
+			if (!filename.isEmpty()) {
+				QFile file(filename, nullptr);
+				file.open(QIODevice::ReadOnly);
 			
-			QString name = filename.right(filename.size() - filename.lastIndexOf("/") - 1);
-			json js;
+				QString name = filename.right(filename.size() - filename.lastIndexOf("/") - 1);
+				json js;
 
-			QFile settings("./userSettings.json");
-			settings.open(QIODevice::ReadWrite | QIODevice::Text);
+				QFile settings("./userSettings.json");
+				settings.open(QIODevice::ReadWrite | QIODevice::Text);
 			
-			js = json::parse(settings.readAll().toStdString());
+				js = json::parse(settings.readAll().toStdString());
 
-			js["avatar"] = name.toStdString();
+				js["avatar"] = name.toStdString();
 
 
-			settings.resize(0);
-			settings.write(js.dump().c_str());
+				settings.resize(0);
+				settings.write(js.dump().c_str());
 
-			this->setStyleSheet("background-image: url(" + filename + ")");
+				this->setStyleSheet("background-image: url(" + filename + ")");
 
-			file.close();
-			settings.close();
+				file.close();
+				settings.close();
+			}
 		}
 	}
 };
