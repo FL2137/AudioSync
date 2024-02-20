@@ -105,7 +105,7 @@ protected:
 	
 	//onclick implementation
 	void mousePressEvent(QMouseEvent *event) override {
-		if (event->button() == Qt::MouseButton::LeftButton) {
+		if (event->button() == Qt::MouseButton::LeftButton && parent()->objectName() == "AudioSyncClass") {
 			QString filename = QFileDialog::getOpenFileName(m_parent, tr("Open image"), "/", tr("Image (*.png *.jpg *.bmp)"));
 			if (!filename.isEmpty()) {
 				QFile file(filename, nullptr);
