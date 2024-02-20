@@ -42,7 +42,6 @@ void AudioSync::uiConnects() {
 
     connect(ui.dialogButton, &QPushButton::clicked, this, &AudioSync::runConnectDialog);
 
-    runLoginDialog();
 
     connect(ui.createRoomButton, &QPushButton::clicked, this, [this]() {
 
@@ -52,7 +51,7 @@ void AudioSync::uiConnects() {
 
         TcpRequest request;
         request.type = "CREATEROOM";
-        request.uid = session.get()->uid;
+        request.uid = this->uid;
         json response;
 
         TcpClient::send(request, response);
@@ -60,6 +59,8 @@ void AudioSync::uiConnects() {
         if (response["ok"] == "OK") 
              session.get()->roomid = response["rid"].get<int>();
     });
+
+    runLoginDialog();
 }
 
 AudioSync::~AudioSync() {
@@ -125,6 +126,7 @@ void AudioSync::runLoginDialog() {
     qDebug() << "AudioSync::runLoginDialog() called";
     loginDialog = new LoginDialogClass(this);
     connect(loginDialog, &LoginDialogClass::passUid, this, [this](int uid) {
+        qDebug() << "SETTING UID: " << uid;
         this->uid = uid;
     });
 }
