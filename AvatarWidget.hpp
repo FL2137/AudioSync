@@ -14,10 +14,24 @@ using nlohmann::json;
 
 
 class FileDialog : QFileDialog {
+	
+public:
+	FileDialog(QString title, QWidget *parent = nullptr) : QFileDialog(parent) {
+
+		this->setObjectName("fileDialog");
+		this->setWindowTitle(title);
+
+		this->show();
+		this->setFocus();
+	}
+
+	~FileDialog() {
+		this->destroy();
+	}
+
+signals:
 
 };
-
-
 
 class AvatarWidget : QWidget {
 
@@ -83,18 +97,37 @@ private:
 
 	QWidget* m_parent = nullptr;
 
+	FileDialog* dialog = nullptr;
+
+
 
 protected:
 	
 	//onclick implementation
 	void mousePressEvent(QMouseEvent *event) override {
 		if (event->button() == Qt::MouseButton::LeftButton) {
-			QFileDialog fDialog(m_parent);
-			fDialog.show();
+			QString filename = QFileDialog::getOpenFileName(m_parent, tr("Open image"), "/", tr("Image (*.png *.jpg *.bmp)"));
+			QFile file(filename, nullptr);
+			file.open(QIODevice::ReadOnly);
+			
+			QString name = filename.right(filename.size() - filename.lastIndexOf("/") - 1);
+			json js;
 
+			QFile settings("./userSettings.json");
+			settings.open(QIODevice::ReadWrite | QIODevice::Text);
+			
+			js = json::parse(settings.readAll().toStdString());
+
+			js["avatar"] = name.toStdString();
+
+
+			settings.resize(0);
+			settings.write(js.dump().c_str());
+
+			this->setStyleSheet("background-image: url(" + filename + ")");
+
+			file.close();
+			settings.close();
 		}
 	}
-
-
-
 };
