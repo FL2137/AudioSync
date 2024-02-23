@@ -154,6 +154,10 @@ class Server : public QObject {
 public:
     Server(std::function<void(std::string, std::string&)> parseFun, QObject *parent);
 
+    static std::string base64_encode(const std::string& in);
+
+    static std::string base64_decode(const std::string& in);
+
 public slots:
     void newConnection();
 
