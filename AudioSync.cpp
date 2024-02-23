@@ -89,7 +89,7 @@ void AudioSync::runServer() {
         if (js["type"] == "NOTIFY") {
             //call for room check
             roomCheck();
-            response = "{'OK':'ok'}";
+            response = "{'ok':'OK'}";
         }
 
     };
@@ -107,6 +107,13 @@ void AudioSync::roomCheck() {
     json response;
     TcpClient::send(request, response);
 
+    if (response["ok"] == "OK") {
+        json data = json::parse(response["data"].get<std::string>()); //for some reason this works but .get<json>() doesnt
+        std::vector<std::string> users;
+        data.get_to(users);
+        for (const auto& user : users) {
+        }
+    }
 }
 
 //slots and signals
@@ -123,10 +130,44 @@ void AudioSync::runConnectDialog() {
 }
 
 void AudioSync::runLoginDialog() {
-    qDebug() << "AudioSync::runLoginDialog() called";
     loginDialog = new LoginDialogClass(this);
     connect(loginDialog, &LoginDialogClass::passUid, this, [this](int uid) {
-        qDebug() << "SETTING UID: " << uid;
         this->uid = uid;
+
+        TcpRequest request;
+        request.type = "SETAVATAR";
+        request.uid = this->uid;
+
+        QFile settings(QDir::currentPath() + "/userSettings.json");
+
+        if (settings.open(QIODevice::ReadOnly | QIODevice::Text)) {
+
+
+            json settingsJs = json::parse(settings.readAll());
+
+            std::string avatarName = settingsJs["avatar"].get<std::string>();
+
+            QFile avatarFile(QDir::currentPath() + "/x64/Debug/Avatars/" + QString::fromStdString(avatarName));
+
+            if (avatarFile.open(QIODevice::ReadOnly)) {
+
+                char* read = avatarFile.readAll().data();
+
+                request.data["avatar"] = Server::base64_encode(read);
+
+                json response;
+
+
+                TcpClient::send(request, response);
+
+                if (response["ok"] == "OK") {
+                    qDebug() << "avatar uploaded";
+                }
+            }
+
+            avatarFile.close();
+        }
+
+        settings.close();
     });
 }

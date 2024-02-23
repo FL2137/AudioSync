@@ -77,6 +77,7 @@ public:
     LoginDialogClass* loginDialog;
 
     AvatarWidget* myAvatar = nullptr;
+    std::vector<AvatarWidget> roomUsers = {};
 
     QString address;
     int port;
