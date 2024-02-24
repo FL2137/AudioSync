@@ -86,10 +86,14 @@ void AudioSync::runServer() {
         }
         
 
-        if (js["type"] == "NOTIFY") {
+        if (js["type"] == "NOTIFYROOM") {
             //call for room check
             roomCheck();
             response = "{'ok':'OK'}";
+        }
+        else if (js["type"] == "NOTIFYFRIEND") {
+            
+
         }
 
     };
@@ -114,6 +118,10 @@ void AudioSync::roomCheck() {
         for (const auto& user : users) {
         }
     }
+}
+
+void AudioSync::friendListCheck() {
+    //tbi
 }
 
 //slots and signals
@@ -153,10 +161,9 @@ void AudioSync::runLoginDialog() {
 
                 char* read = avatarFile.readAll().data();
 
-                request.data["avatar"] = Server::base64_encode(read);
+                request.data["avatar"] = "avatarLalala";
 
                 json response;
-
 
                 TcpClient::send(request, response);
 

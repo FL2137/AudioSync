@@ -50,6 +50,7 @@ signals:
 //private functions
 private:
     void roomCheck();
+    void friendListCheck();
     void runServer();
     void uiConnects();
 
