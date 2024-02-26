@@ -5,7 +5,9 @@
 #include "ui_ConnectDialog.h"
 #include "Session.hpp"
 #include "AudioHandler.hpp"
+
 #include <boost/asio.hpp>
+
 #include <qaudiosink.h>
 #include <qrandom.h>
 #include <qthreadpool.h>
@@ -18,7 +20,10 @@
 #include <qdial.h>
 #include <qlcdnumber.h>
 #include <qmutex.h>
+
 #include <functional>
+#include <utility>
+#include <memory>
 
 #include "TcpServer.hpp"
 #include "TcpClient.hpp"
@@ -78,7 +83,7 @@ public:
     LoginDialogClass* loginDialog;
 
     AvatarWidget* myAvatar = nullptr;
-    std::vector<AvatarWidget> roomUsers = {};
+    std::vector<AvatarWidget*> roomUsers = {};
 
     QString address;
     int port;
