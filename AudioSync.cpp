@@ -35,13 +35,6 @@ AudioSync::AudioSync(QWidget *parent)
 
 void AudioSync::uiConnects() {
 
-    //connect dial to volume function and "LCD" display
-    connect(ui.volumeDial, &QDial::valueChanged, this, [=](int value) {
-        session->changeRenderVolume(value);
-    });
-
-    connect(ui.dialogButton, &QPushButton::clicked, this, &AudioSync::runConnectDialog);
-
 
     connect(ui.createRoomButton, &QPushButton::clicked, this, [this]() {
 
@@ -73,6 +66,10 @@ AudioSync::~AudioSync() {
 
     delete loginDialog;
     delete myAvatar;
+
+    for (AvatarWidget* avatar : roomUsers) { //ensure deletion of every avatar widget
+        delete avatar;
+    }
 }
 
 //functions
@@ -91,9 +88,8 @@ void AudioSync::runServer() {
             roomCheck();
             response = "{'ok':'OK'}";
         }
-        else if (js["type"] == "NOTIFYFRIEND") {
+        else if (js["type"] == "NOTIFYFRIENDS") {
             
-
         }
 
     };
@@ -116,6 +112,9 @@ void AudioSync::roomCheck() {
         std::vector<std::string> users;
         data.get_to(users);
         for (const auto& user : users) {
+            
+            auto ptr = new AvatarWidget("", roomUsers.size(), ui.roomView);
+            roomUsers.push_back(ptr);
         }
     }
 }
