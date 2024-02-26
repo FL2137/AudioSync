@@ -62,7 +62,10 @@ public:
 		this->setGeometry(QRect(parent->geometry().width() - 210, 30, 100, 100));
 	}
 
-	AvatarWidget(QString file, QWidget* parent = nullptr) : QWidget(parent) {
+	AvatarWidget(QString file, int nthUser, QWidget* parent = nullptr) : QWidget(parent) {
+		if (file == "")
+			file = "userAvatar";
+
 		this->setObjectName("avatar" + file);
 		int n = 1;
 
@@ -71,8 +74,7 @@ public:
 		int pY = parentGeo.y();
 		int pX = parentGeo.x();
 
-		this->setGeometry(QRect(10, 10, 100, 100));
-
+		this->setGeometry(QRect(10 + 100 * nthUser, 10, 100, 100));
 
 		QString avatarPath = QDir::currentPath() + "/x64/Debug/Avatars/" + file + ".png";
 
