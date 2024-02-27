@@ -1,38 +1,37 @@
 #include "TcpServer.hpp"
 
-Server::Server(std::function<void(std::string, std::string&)> parseFun, QObject *parent) : QObject(parent) {
+Server::Server(std::function<void(std::string, std::string&)> parseFun, QObject *parent) : QTcpServer(parent) {
 	
 	this->parseFunction = parseFun;
 	
 	tcpServer = new QTcpServer(this);
+	connect(tcpServer, &QTcpServer::newConnection, this, &Server::incomingConnection);
 
-	connect(tcpServer, &QTcpServer::newConnection, this, &Server::newConnection);
+    int port = 3009;
 
-	if (tcpServer->listen(QHostAddress::AnyIPv4, 3009)) {
-		qDebug() << "Server started";
+    QHostAddress address("192.168.1.109");
+	if (tcpServer->listen(QHostAddress::Any, 3009)) {
+        qDebug() << "Listening on :" << tcpServer->serverAddress().toString() << tcpServer->serverPort();
 	}
 	else {
 		qWarning() << "Server could not start";
 	}
 }
 
-void Server::newConnection() {
+void Server::incomingConnection() {
 
-	tcpServer->pauseAccepting();
-
+    qDebug() << "incomiiiiingngggggg...";
 	QTcpSocket* socket = tcpServer->nextPendingConnection();
 
 	std::string response;
 
-	if (socket->waitForReadyRead(3000)) {
-		QByteArray data = socket->readAll();
-		parseFunction(data.toStdString(), response);
-		socket->write(response.data(), response.size());
-	}
+	QByteArray data = socket->readAll();
+	parseFunction(data.toStdString(), response);
+	socket->write(response.data(), response.size());
 
 	socket->close();
 
-	tcpServer->resumeAccepting();
+	//tcpServer->resumeAccepting();
 }
 
 std::string Server::base64_encode(const std::string& in) {

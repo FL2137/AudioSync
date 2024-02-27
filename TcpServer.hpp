@@ -46,7 +46,6 @@ public:
         return _socket;
     }
 
-
     void start() {
         boost::asio::async_read(
             _socket,
@@ -145,9 +144,7 @@ private:
     std::function<void(std::string, std::string&)> requestParser;
 };
 
-
-
-class Server : public QObject {
+class Server : public QTcpServer {
 
     Q_OBJECT
 
@@ -159,7 +156,7 @@ public:
     static std::string base64_decode(const std::string& in);
 
 public slots:
-    void newConnection();
+    void incomingConnection();
 
 
 private:
