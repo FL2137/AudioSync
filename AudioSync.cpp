@@ -90,6 +90,7 @@ void AudioSync::runServer() {
         }
         else if (js["type"] == "NOTIFYFRIENDS") {
             
+            response = "{'ok':'OK'}";
         }
 
     };
