@@ -121,7 +121,6 @@ public slots:
 private:
 
     
-
     void startAccept(std::function<void(std::string, std::string&)> f) {
         TcpConnection::pointer newConnection = TcpConnection::create(io_context, f);
 
@@ -155,9 +154,10 @@ public:
 
     static std::string base64_decode(const std::string& in);
 
-public slots:
+private slots:
     void incomingConnection();
-
+    void onReadyRead();
+    void stateChanged(QAbstractSocket::SocketState state);
 
 private:
     std::function<void(std::string, std::string&)> parseFunction;

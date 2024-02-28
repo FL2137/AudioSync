@@ -10,7 +10,7 @@ Server::Server(std::function<void(std::string, std::string&)> parseFun, QObject 
     int port = 3009;
 
     QHostAddress address("192.168.1.109");
-	if (tcpServer->listen(QHostAddress::Any, 3009)) {
+	if (tcpServer->listen(address, 3009)) {
         qDebug() << "Listening on :" << tcpServer->serverAddress().toString() << tcpServer->serverPort();
 	}
 	else {
@@ -20,18 +20,33 @@ Server::Server(std::function<void(std::string, std::string&)> parseFun, QObject 
 
 void Server::incomingConnection() {
 
-    qDebug() << "incomiiiiingngggggg...";
+    tcpServer->pauseAccepting();
 	QTcpSocket* socket = tcpServer->nextPendingConnection();
 
-	std::string response;
+    connect(socket, &QTcpSocket::readyRead, this, &Server::onReadyRead);
+    connect(socket, &QTcpSocket::stateChanged, this, &Server::stateChanged);
 
-	QByteArray data = socket->readAll();
-	parseFunction(data.toStdString(), response);
-	socket->write(response.data(), response.size());
 
-	socket->close();
+	tcpServer->resumeAccepting();
+}
 
-	//tcpServer->resumeAccepting();
+void Server::onReadyRead() {
+
+    QTcpSocket* socket = static_cast<QTcpSocket*>(QObject::sender());
+
+    QByteArray data = socket->readAll();
+    qDebug() << data.toStdString();
+    std::string response;
+    parseFunction(data.toStdString(), response);
+
+    qDebug() << "response: " << response;
+
+    socket->write(response.data(), response.size());
+}
+
+void Server::stateChanged(QAbstractSocket::SocketState state) {
+    if(state == QAbstractSocket::SocketState::UnconnectedState)
+    { } //???
 }
 
 std::string Server::base64_encode(const std::string& in) {
