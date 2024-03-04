@@ -10,7 +10,7 @@ class WebsocketClient : public QObject {
 	Q_OBJECT
 
 public:
-	WebsocketClient(const QUrl& url, bool debug = false, QObject* parent = nullptr);
+	WebsocketClient(const QUrl& url, QObject* parent = nullptr);
 			
 
 signals:
