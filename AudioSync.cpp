@@ -70,32 +70,40 @@ AudioSync::~AudioSync() {
     for (AvatarWidget* avatar : roomUsers) { //ensure deletion of every avatar widget
         delete avatar;
     }
+
+    delete server;
+    delete webSocketClient;
 }
 
 //functions
 
 void AudioSync::runServer() {
 
-    auto serverFoo = [&](std::string request, std::string& response) {
-        json js;
-        if (json::accept(request)) {
-            js = json::parse(request);
-        }
-        
+    //auto serverFoo = [&](std::string request, std::string& response) {
+    //    json js;
+    //    if (json::accept(request)) {
+    //        js = json::parse(request);
+    //    }
+    //    else {
+    //        qDebug() << "AudioSync::runServer(): invalid json provided";
+    //    }
+    //    
+    //    if (js["type"] == "NOTIFYROOM") {
+    //        //call for room check
+    //        roomCheck();
+    //        response = "{'ok':'OK'}";
+    //    }
+    //    else if (js["type"] == "NOTIFYFRIENDS") {
 
-        if (js["type"] == "NOTIFYROOM") {
-            //call for room check
-            roomCheck();
-            response = "{'ok':'OK'}";
-        }
-        else if (js["type"] == "NOTIFYFRIENDS") {
-            
-            response = "{'ok':'OK'}";
-        }
+    //        friendListCheck();
+    //        response = "{'ok':'OK'}";
+    //    }
 
-    };
+    //};
 
-    Server server(serverFoo, this); 
+    //server = new Server(serverFoo, this);
+    QUrl url("192.168.1.109:3005");
+    webSocketClient = new WebsocketClient(url, this);
 }
 
 void AudioSync::roomCheck() {
@@ -122,6 +130,11 @@ void AudioSync::roomCheck() {
 
 void AudioSync::friendListCheck() {
     //tbi
+    TcpRequest request;
+    request.type = "FRIENDSCHECK";
+
+
+
 }
 
 //slots and signals
