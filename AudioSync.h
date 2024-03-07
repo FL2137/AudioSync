@@ -30,7 +30,7 @@
 
 #include "InputDialog.hpp"
 #include "LoginDialogClass.hpp"
-
+#include "WebsocketClient.hpp"
 #include "AvatarWidget.hpp"
 
 class AudioSync : public QMainWindow
@@ -85,10 +85,17 @@ public:
     AvatarWidget* myAvatar = nullptr;
     std::vector<AvatarWidget*> roomUsers = {};
 
+    Server* server = nullptr;
+
     QString address;
     int port;
 
     std::unique_ptr<Session> session;
+
+
+    WebsocketClient* webSocketClient = nullptr;
+
+
 
     int uid;                                                
 };
