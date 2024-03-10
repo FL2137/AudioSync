@@ -15,7 +15,15 @@ void WebsocketClient::onConnected() {
 	qDebug() << "Websocket connected";
 	connect(&socket, &QWebSocket::textMessageReceived, this, &WebsocketClient::onTextMessageReceived);
 
-	socket.sendTextMessage("lalalalalalal");
+	json js;
+	json data;
+	data["nickname"] = "srarara";
+	data["password"] = "ajjmw";
+
+	js["type"] = "LOGIN";
+	js["data"] = data;
+
+	socket.sendTextMessage(QString::fromStdString(js.dump()));
 }
 
 void WebsocketClient::onTextMessageReceived(QString message) {
@@ -24,4 +32,16 @@ void WebsocketClient::onTextMessageReceived(QString message) {
 	QString str = message + QString::fromStdString(std::to_string(i));
 	socket.sendTextMessage(str);
 	//optional close
+}
+
+void WebsocketClient::makeRequest(json request, QString &response) {
+	QUrl u("ws://192.168.1.109:3005");
+	QWebSocket _sock;
+	_sock.open(u);
+
+	_sock.sendTextMessage(QString::fromStdString(request.dump()));
+
+	connect(_sock)
+	_sock.textMessageReceived(response);
+
 }
