@@ -94,7 +94,7 @@ public:
 
 
     WebsocketClient* webSocketClient = nullptr;
-
+    QWebSocket *requestSocket = nullptr;
 
 
     int uid;                                                
