@@ -107,14 +107,32 @@ void AudioSync::runServer() {
 }
 
 void AudioSync::roomCheck() {
-    TcpRequest request;
-    request.type = "ROOMCHECK";
+
+    json request;
+
+    request["type"] = "ROOMCHECK";
+
     json data;
     data["uid"] = session.get()->uid;
     data["rid"] = session.get()->roomid;
 
+    request["data"] = data;
+
     json response;
-    TcpClient::send(request, response);
+
+    QUrl url("ws://192.168.1.109:3005");
+    requestSocket = new QWebSocket();
+
+    connect(requestSocket, &QWebSocket::textMessageReceived, this, [&](const QString &_response) {
+    
+        qDebug() << _response;
+
+        response = json::parse(_response.toStdString());
+
+        requestSocket->close();
+    });
+
+    requestSocket->sendTextMessage(QString::fromStdString(request.dump()));
 
     if (response["ok"] == "OK") {
         json data = json::parse(response["data"].get<std::string>()); //for some reason this works but .get<json>() doesnt
