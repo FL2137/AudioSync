@@ -128,22 +128,27 @@ void AudioSync::roomCheck() {
         qDebug() << _response;
 
         response = json::parse(_response.toStdString());
+      
+        if (response["ok"] == "OK") {
+            json data = json::parse(response["data"].get<std::string>()); //for some reason this works but .get<json>() doesnt
+            std::vector<std::string> users;
+            data.get_to(users);
+            for (const auto& user : users) {
 
+                auto ptr = new AvatarWidget("", roomUsers.size(), ui.roomView);
+                roomUsers.push_back(ptr);
+            }
+        }
         requestSocket->close();
+        delete requestSocket;
     });
+
+
+    requestSocket->open(url);
 
     requestSocket->sendTextMessage(QString::fromStdString(request.dump()));
 
-    if (response["ok"] == "OK") {
-        json data = json::parse(response["data"].get<std::string>()); //for some reason this works but .get<json>() doesnt
-        std::vector<std::string> users;
-        data.get_to(users);
-        for (const auto& user : users) {
-            
-            auto ptr = new AvatarWidget("", roomUsers.size(), ui.roomView);
-            roomUsers.push_back(ptr);
-        }
-    }
+   
 }
 
 void AudioSync::friendListCheck() {
