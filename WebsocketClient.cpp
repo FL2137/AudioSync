@@ -28,9 +28,6 @@ void WebsocketClient::onConnected() {
 
 void WebsocketClient::onTextMessageReceived(QString message) {
 	qDebug() << "WebsocketClient received: " << message;
-	static int i = 1;
-	QString str = message + QString::fromStdString(std::to_string(i));
-	socket.sendTextMessage(str);
 	//optional close
 }
 
@@ -41,7 +38,6 @@ void WebsocketClient::makeRequest(json request, QString &response) {
 
 	_sock.sendTextMessage(QString::fromStdString(request.dump()));
 
-	connect(_sock)
 	_sock.textMessageReceived(response);
 
 }
