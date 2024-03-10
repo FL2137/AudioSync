@@ -2,6 +2,7 @@
 
 #include <qdialog.h>
 #include <qpushbutton.h>
+#include <qwebsocket.h>
 #include "ui_LoginDialog.h"
 #include "TcpClient.hpp"
 
@@ -19,4 +20,6 @@ signals:
 private:
 	Ui::LoginDialog ui;
 	QDialog dialog;
+	QWebSocket* socket = nullptr;
+
 };

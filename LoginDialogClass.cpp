@@ -15,31 +15,41 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 			return;
 		}
 
-		TcpRequest request;
-		request.type = "LOGIN";
-		request.uid = -1;
+		socket = new QWebSocket();
+
+
+		json request;
+		request["type"] = "LOGIN";
+		request["uid"] = -1;
 		json data;
 
 		data["nickname"] = ui.loginEdit->text().toStdString();
 		data["password"] = ui.passwordEdit->text().toStdString();
 
-		request.data = data;
-		
+		request["data"] = data.dump();
+
 		json response;
 
-		TcpClient::send(request, response);
+		connect(socket, &QWebSocket::textMessageReceived, this, [&](const QString& _response) {
+			response = json::parse(_response.toStdString());
+			if (response["ok"] == "OK") {
+				uid = response["uid"].get<int>();
+				emit passUid(uid);
+				dialog.close();
+			}
+			else {
+				ui.badCredsLabel->setText("Incorrect login or password");
+				ui.loginEdit->setText("");
+				ui.passwordEdit->setText("");
+			}
 
-		if (response["ok"] == "OK") {
-			uid = response["uid"].get<int>();
-			emit passUid(uid);
-			dialog.close();
-		}
-		else {
-			ui.badCredsLabel->setText("Incorrect login or password");
-			ui.loginEdit->setText("");
-			ui.passwordEdit->setText("");
-		}
-
+			socket->close();
+			delete socket;
+		});
+		QUrl url("ws://192.168.1.109:3005");
+		socket->open(url);
+		qDebug() << "sending: " << QString::fromStdString(request.dump());
+		socket->sendTextMessage(QString::fromStdString(request.dump()));
 	});
 	dialog.show();
 	dialog.setFocus();
