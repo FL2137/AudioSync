@@ -27,19 +27,17 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 			data["nickname"] = ui.loginEdit->text().toStdString();
 			data["password"] = ui.passwordEdit->text().toStdString();
 
-			request["data"] = data.dump();
-
-
-			qDebug() << "sending: " << QString::fromStdString(request.dump());
-			socket->sendTextMessage(QString::fromStdString(request.dump()));
-
+			request["data"] = data;
 
 			connect(socket, &QWebSocket::textMessageReceived, this, [&](const QString& _response) {
 				json response = json::parse(_response.toStdString());
+				qDebug() << response.dump();
 				if (response["ok"] == "OK") {
 					uid = response["uid"].get<int>();
 					emit passUid(uid);
+					socket->close();
 					dialog.close();
+
 				}
 				else {
 					ui.badCredsLabel->setText("Incorrect login or password");
@@ -47,9 +45,10 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 					ui.passwordEdit->setText("");
 				}
 
-				socket->close();
-				delete socket;
 			});
+
+			qDebug() << "sending: " << QString::fromStdString(request.dump());
+			socket->sendTextMessage(QString::fromStdString(request.dump()));
 		});
 
 		QUrl url("ws://192.168.1.109:3005");
@@ -58,4 +57,9 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 	});
 	dialog.show();
 	dialog.setFocus();
+}
+
+
+LoginDialogClass::~LoginDialogClass() {
+	delete socket;
 }
