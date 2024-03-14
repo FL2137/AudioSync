@@ -5,6 +5,7 @@
 #include <qwebsocket.h>
 #include "ui_LoginDialog.h"
 #include "TcpClient.hpp"
+#include "WebsocketClient.hpp"
 
 class LoginDialogClass : public QDialog {
 
@@ -18,10 +19,10 @@ public:
 
 signals:
 	void passUid(int uid);
+	void disconnected();
 
 private:
 	Ui::LoginDialog ui;
 	QDialog dialog;
 	QWebSocket* socket = nullptr;
-
 };

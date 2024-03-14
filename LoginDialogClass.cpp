@@ -3,7 +3,6 @@
 LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 	ui.setupUi(&dialog);
 
-
 	connect(ui.okPush, &QPushButton::clicked, this, [=]() {
 		if (ui.loginEdit->text().isEmpty()) {
 			ui.loginEdit->setText("Please enter your login");
@@ -15,46 +14,27 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 			return;
 		}
 
-		socket = new QWebSocket();
 
-		connect(socket, &QWebSocket::connected, this, [&]() {
+		json request;
+		request["type"] = "LOGIN";
+		request["uid"] = -1;
+		json data;
 
-			json request;
-			request["type"] = "LOGIN";
-			request["uid"] = -1;
-			json data;
+		data["nickname"] = ui.loginEdit->text().toStdString();
+		data["password"] = ui.passwordEdit->text().toStdString();
 
-			data["nickname"] = ui.loginEdit->text().toStdString();
-			data["password"] = ui.passwordEdit->text().toStdString();
+		request["data"] = data;
 
-			request["data"] = data;
+		std::string response;
 
-			connect(socket, &QWebSocket::textMessageReceived, this, [&](const QString& _response) {
-				json response = json::parse(_response.toStdString());
-				qDebug() << response.dump();
-				if (response["ok"] == "OK") {
-					uid = response["uid"].get<int>();
-					emit passUid(uid);
-					socket->close();
-					dialog.close();
+		BeastClient::syncBeast(request.dump(), response);
 
-				}
-				else {
-					ui.badCredsLabel->setText("Incorrect login or password");
-					ui.loginEdit->setText("");
-					ui.passwordEdit->setText("");
-				}
+		qDebug() << response;
 
-			});
-
-			qDebug() << "sending: " << QString::fromStdString(request.dump());
-			socket->sendTextMessage(QString::fromStdString(request.dump()));
-		});
-
-		QUrl url("ws://192.168.1.109:3005");
-		socket->open(url);
+		dialog.close();
 
 	});
+
 	dialog.show();
 	dialog.setFocus();
 }
