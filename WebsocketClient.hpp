@@ -75,7 +75,6 @@ public:
 
 		ws.close(websocket::close_code::normal);
 
-		std::cout << beast::make_printable(buffer.data()) << std::endl;
-
+		response = beast::buffers_to_string(buffer);
 	}
 };
