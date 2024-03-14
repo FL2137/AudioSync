@@ -9,6 +9,7 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/connect.hpp>
+#include <boost/asio/buffer.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <cstdlib>
 #include <iostream>
@@ -74,7 +75,6 @@ public:
 		ws.read(buffer);
 
 		ws.close(websocket::close_code::normal);
-
-		response = beast::buffers_to_string(buffer);
+		response = beast::buffers_to_string(buffer.data());
 	}
 };

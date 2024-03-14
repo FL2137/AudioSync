@@ -24,7 +24,7 @@ void WebsocketClient::onTextMessageReceived(QString message) {
 	//optional close
 }
 
-void WebsocketClient::makeRequest(QWebSocket* socket, QObject *sender, std::function<void(const QString& response)> handler, const json request) {
+void WebsocketClient::makeRequest(QWebSocket* socket, QObject *sender, std::function<void(const QString& response)> *handler, const json request) {
 	QUrl u("ws://192.168.1.109:3005");
 
 	connect(socket, &QWebSocket::disconnected, socket, []() {});
@@ -32,7 +32,7 @@ void WebsocketClient::makeRequest(QWebSocket* socket, QObject *sender, std::func
 	connect(socket, &QWebSocket::connected, sender, [&]() {
 		
 		connect(socket, &QWebSocket::textMessageReceived, sender, [&](const QString& message) {
-			handler(message);
+			//handler(message);
 			socket->close();
 		});
 
@@ -42,3 +42,4 @@ void WebsocketClient::makeRequest(QWebSocket* socket, QObject *sender, std::func
 	
 	socket->open(u);
 }
+
