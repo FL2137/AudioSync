@@ -102,8 +102,9 @@ void AudioSync::runServer() {
     //};
 
     //server = new Server(serverFoo, this);
-    QUrl url("192.168.1.109:3005");
-    webSocketClient = new WebsocketClient(url, this);
+    
+    //QUrl url("192.168.1.109:3005");
+    //webSocketClient = new WebsocketClient(url, this);
 }
 
 void AudioSync::roomCheck() {
@@ -118,37 +119,22 @@ void AudioSync::roomCheck() {
 
     request["data"] = data;
 
-    json response;
+    std::string strResponse;
 
-    QUrl url("ws://192.168.1.109:3005");
-    requestSocket = new QWebSocket();
-
-    connect(requestSocket, &QWebSocket::textMessageReceived, this, [&](const QString &_response) {
-    
-        qDebug() << _response;
-
-        response = json::parse(_response.toStdString());
-      
-        if (response["ok"] == "OK") {
-            json data = json::parse(response["data"].get<std::string>()); //for some reason this works but .get<json>() doesnt
-            std::vector<std::string> users;
-            data.get_to(users);
-            for (const auto& user : users) {
-
-                auto ptr = new AvatarWidget("", roomUsers.size(), ui.roomView);
-                roomUsers.push_back(ptr);
-            }
-        }
-        requestSocket->close();
-        delete requestSocket;
-    });
-
-
-    requestSocket->open(url);
-
-    requestSocket->sendTextMessage(QString::fromStdString(request.dump()));
-
+    BeastClient::syncBeast(request.dump(), strResponse);
    
+    json response = json::parse(strResponse);
+      
+    if (response["ok"] == "OK") {
+        json data = json::parse(response["data"].get<std::string>()); //for some reason this works but .get<json>() doesnt
+        std::vector<std::string> users;
+        data.get_to(users);
+        for (const auto& user : users) {
+
+            auto ptr = new AvatarWidget("", roomUsers.size(), ui.roomView);
+            roomUsers.push_back(ptr);
+        }
+    }
 }
 
 void AudioSync::friendListCheck() {
@@ -175,7 +161,7 @@ void AudioSync::runConnectDialog() {
 
 void AudioSync::runLoginDialog() {
     loginDialog = new LoginDialogClass(this);
-    connect(loginDialog, &LoginDialogClass::passUid, this, [this](int uid) {
+   /* connect(loginDialog, &LoginDialogClass::passUid, this, [this](int uid) {
         this->uid = uid;
 
         TcpRequest request;
@@ -212,5 +198,5 @@ void AudioSync::runLoginDialog() {
         }
 
         settings.close();
-    });
+    });*/
 }
