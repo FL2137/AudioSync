@@ -11,6 +11,7 @@
 #include <boost/asio/connect.hpp>
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ip/udp.hpp>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -43,10 +44,13 @@ namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
 namespace _net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;
+using udp = boost::asio::ip::udp;
+
 
 class BeastClient {
 
 public:
+
 
 	static void syncBeast(const std::string& request, std::string& response) {
 		_net::io_context ioc;
