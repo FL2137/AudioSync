@@ -3,10 +3,14 @@
 using boost::asio::ip::udp;	
 
 AudioHandler::AudioHandler(MODE mode) {
-	
+
+	this->socket = std::make_unique<udp::socket>(this->ioc, this->localEndpoint);
 }
 
 AudioHandler::~AudioHandler() {
+
+
+	socket->close();
 
 	delete audioClient;
 	delete format;
@@ -96,13 +100,10 @@ void AudioHandler::win32AudioCapture() {
 	bool finish = false;
 	int bufferIter = 0;
 
-
 	//udp part
 	////////////////////////////////////
-	boost::asio::io_context ioc;
 
-	udp::socket socket(ioc);
-	socket.open(udp::v4());
+	//socket.open(udp::v4());
 
 	////////////////////////////////////
 	while (!finish) {
@@ -117,7 +118,7 @@ void AudioHandler::win32AudioCapture() {
 		
 			if (data != NULL && bytesToWrite != 0) {
 				for (const auto& ep : endpointList) {
-					socket.send_to(boost::asio::buffer(data, bytesToWrite), ep);
+					socket->send_to(boost::asio::buffer(data, bytesToWrite), ep);
 				}
 			}
 
@@ -127,7 +128,7 @@ void AudioHandler::win32AudioCapture() {
 		}
 
 	}
-	socket.close();
+	
 	audioClient->Stop();
 	captureClient->Release();
 	audioClient->Release();
