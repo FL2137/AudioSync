@@ -106,6 +106,9 @@ private:
 	//boost stuff
 	std::unique_ptr<boost::asio::io_context> ioc;
 	std::unique_ptr<udp::resolver> resolver;
+	std::unique_ptr<udp::socket> socket;
+
+	udp::endpoint localEndpoint = udp::endpoint(udp::v4(), 3009);
 
 	QList<udp::endpoint> endpointList;
 
