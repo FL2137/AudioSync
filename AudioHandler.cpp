@@ -4,11 +4,10 @@ using boost::asio::ip::udp;
 
 AudioHandler::AudioHandler(MODE mode) {
 
-	this->socket = std::make_unique<udp::socket>(this->ioc, this->localEndpoint);
+	this->socket = std::make_unique<udp::socket>(*ioc.get(), this->localEndpoint);
 }
 
 AudioHandler::~AudioHandler() {
-
 
 	socket->close();
 
