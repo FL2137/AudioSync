@@ -23,7 +23,6 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 
 		std::string passHash = ui.passwordEdit->text().toStdString();
 
-
 		encryption.update(passHash);
 		auto digested = encryption.digest();
 
@@ -44,9 +43,9 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 			jsonResponse = json::parse(response);
 		}
 
-
 		if (jsonResponse["ok"] == "OK") {
 			this->uid = jsonResponse["uid"].get<int>();
+			emit passUid(this->uid);
 			dialog.close();
 		}
 		else {
@@ -54,7 +53,6 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 			ui.loginEdit->setText("");
 			ui.passwordEdit->setText("");
 		}
-
 	});
 
 	dialog.show();
