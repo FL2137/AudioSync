@@ -14,14 +14,23 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 			return;
 		}
 
-
 		json request;
 		request["type"] = "LOGIN";
 		request["uid"] = -1;
 		json data;
 
+		SHA256 encryption;
+
+		std::string passHash = ui.passwordEdit->text().toStdString();
+
+
+		encryption.update(passHash);
+		auto digested = encryption.digest();
+
+		qDebug() << SHA256::toString(digested);
+
 		data["nickname"] = ui.loginEdit->text().toStdString();
-		data["password"] = ui.passwordEdit->text().toStdString();
+		data["password"] = SHA256::toString(digested);
 
 		request["data"] = data;
 
@@ -29,9 +38,22 @@ LoginDialogClass::LoginDialogClass(QWidget* parent) : QDialog(parent) {
 
 		BeastClient::syncBeast(request.dump(), response);
 
-		qDebug() << response;
+		json jsonResponse;
 
-		dialog.close();
+		if (json::accept(response)) {
+			jsonResponse = json::parse(response);
+		}
+
+
+		if (jsonResponse["ok"] == "OK") {
+			this->uid = jsonResponse["uid"].get<int>();
+			dialog.close();
+		}
+		else {
+			ui.badCredsLabel->setText("Incorrect login or password");
+			ui.loginEdit->setText("");
+			ui.passwordEdit->setText("");
+		}
 
 	});
 

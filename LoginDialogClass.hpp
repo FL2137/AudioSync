@@ -5,6 +5,7 @@
 #include <qwebsocket.h>
 #include "ui_LoginDialog.h"
 #include "TcpClient.hpp"
+#include "SHA256.hpp"
 #include "WebsocketClient.hpp"
 
 class LoginDialogClass : public QDialog {
