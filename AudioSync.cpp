@@ -35,7 +35,7 @@ AudioSync::AudioSync(QWidget *parent)
 
 void AudioSync::uiConnects() {
 
-    connect(ui.createRoomButton, &QPushButton::clicked, this, createRoom);
+    connect(ui.createRoomButton, &QPushButton::clicked, this, &AudioSync::createRoom);
 
     runLoginDialog();
 }
@@ -53,8 +53,7 @@ void AudioSync::createRoom() {
     json response = json::parse(res);
 
     if (response["ok"] == "OK") {
-        session = std::make_unique<Session>(localAddress, 3002);
-        
+        session = std::make_unique<Session>();
     }
     else {
         QMessageBox::warning(this, "Failure creating your lobby", "Server rejected the creation of your lobby room");
