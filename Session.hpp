@@ -51,8 +51,4 @@ private:
 
 	const int BUFFERSIZE = 1764;
 	char* renderBuffer;
-
-	int port;
-	QString address;
-
 };

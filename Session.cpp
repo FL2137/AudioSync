@@ -5,10 +5,6 @@ Session::Session(QString _address, int _port) {
 	audioCapture = new AudioHandler(AudioHandler::MODE::CAPTURE);
 	audioRender = new AudioHandler(AudioHandler::MODE::RENDER);
 	renderBuffer = new char[BUFFERSIZE] {0};
-
-	address = _address;
-	port = _port;
-
 }
 
 void Session::startSession() {
@@ -18,10 +14,10 @@ void Session::startSession() {
 	
 	connect(this, &Session::runAudioRender, audioRender, &AudioHandler::win32Render);
 	connect(this, &Session::runAudioCapture, audioCapture, &AudioHandler::win32AudioCapture);
-
+	
 	captureThread.start();
 	renderThread.start();
-
+	
 	emit runAudioCapture();
 	emit runAudioRender(renderBuffer);
 
@@ -32,7 +28,7 @@ void Session::startSession() {
 
 Session::~Session() {
 
-	captureThread.quit();
+	captureThread.quit(); 
 	captureThread.wait();
 
 	renderThread.quit();
