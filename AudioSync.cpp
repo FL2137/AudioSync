@@ -43,7 +43,7 @@ void AudioSync::uiConnects() {
 void AudioSync::createRoom() {
 
     json request;
-    request["type"] = "CREATEROOM";
+    request["type"] = "CREATE_ROOM";
     request["uid"] = this->uid;
 
     std::string res;
@@ -117,7 +117,7 @@ void AudioSync::roomCheck() {
 
     json request;
 
-    request["type"] = "ROOMCHECK";
+    request["type"] = "ROOM_CHECK";
 
     json data;
     data["uid"] = session.get()->uid;
@@ -146,7 +146,7 @@ void AudioSync::roomCheck() {
 void AudioSync::friendListCheck() {
     //tbi
     TcpRequest request;
-    request.type = "FRIENDSCHECK";
+    request.type = "FRIENDS_CHECK";
 
 
 
@@ -171,7 +171,7 @@ void AudioSync::runLoginDialog() {
         this->uid = uid;
 
         /*TcpRequest request;
-        request.type = "SETAVATAR";
+        request.type = "SET_AVATAR";
         request.uid = this->uid;
 
         QFile settings(QDir::currentPath() + "/userSettings.json");
