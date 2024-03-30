@@ -10,7 +10,7 @@ class Session : public QObject {
 
 public:
 
-	Session(QString _address, int _port);
+	Session();
 
 	~Session();
 	
@@ -40,7 +40,6 @@ public:
 	QString nick;
 
 private:
-
 
 	AudioHandler* audioCapture;
 	AudioHandler* audioRender;

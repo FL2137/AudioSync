@@ -1,7 +1,7 @@
 #include "Session.hpp"
 #include <iostream>
 
-Session::Session(QString _address, int _port) {
+Session::Session() {
 	audioCapture = new AudioHandler(AudioHandler::MODE::CAPTURE);
 	audioRender = new AudioHandler(AudioHandler::MODE::RENDER);
 	renderBuffer = new char[BUFFERSIZE] {0};
