@@ -61,7 +61,7 @@ public:
 
 
 
-	static std::tuple<std::string, std::string> punchAhole(std::unique_ptr<udp::socket>& socket) const {
+	static std::tuple<std::string, std::string> punchAhole(std::unique_ptr<udp::socket>& socket) {
 		auto stunAddress = boost::asio::ip::make_address("142.250.15.127"); //address of stun2.l.google.com
 
 		udp::endpoint stunEndpoint(stunAddress, 3748);
