@@ -35,25 +35,32 @@ AudioSync::AudioSync(QWidget *parent)
 
 void AudioSync::uiConnects() {
 
-
-    connect(ui.createRoomButton, &QPushButton::clicked, this, [this]() {
-
-        int DEFAULT_PORT = 3002;
-        session = std::make_unique<Session>(localAddress, DEFAULT_PORT);
-        session->startSession();
-
-        TcpRequest request;
-        request.type = "CREATEROOM";
-        request.uid = this->uid;
-        json response;
-
-        TcpClient::send(request, response);
-
-        if (response["ok"] == "OK") 
-             session.get()->roomid = response["rid"].get<int>();
-    });
+    connect(ui.createRoomButton, &QPushButton::clicked, this, createRoom);
 
     runLoginDialog();
+}
+
+void AudioSync::createRoom() {
+
+    json request;
+    request["type"] = "CREATEROOM";
+    request["uid"] = this->uid;
+
+    std::string res;
+
+    BeastClient::syncBeast(request.dump(), res);
+
+    json response = json::parse(res);
+
+    if (response["ok"] == "OK") {
+        session = std::make_unique<Session>(localAddress, 3002);
+        
+    }
+    else {
+        QMessageBox::warning(this, "Failure creating your lobby", "Server rejected the creation of your lobby room");
+    }
+
+
 }
 
 AudioSync::~AudioSync() {
@@ -161,10 +168,10 @@ void AudioSync::runConnectDialog() {
 
 void AudioSync::runLoginDialog() {
     loginDialog = new LoginDialogClass(this);
-   /* connect(loginDialog, &LoginDialogClass::passUid, this, [this](int uid) {
+    connect(loginDialog, &LoginDialogClass::passUid, this, [this](int uid) {
         this->uid = uid;
 
-        TcpRequest request;
+        /*TcpRequest request;
         request.type = "SETAVATAR";
         request.uid = this->uid;
 
@@ -197,6 +204,6 @@ void AudioSync::runLoginDialog() {
             avatarFile.close();
         }
 
-        settings.close();
-    });*/
+        settings.close();*/
+    });
 }
