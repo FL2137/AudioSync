@@ -11,6 +11,7 @@
 using boost::asio::ip::udp;
 
 class HolePuncher {
+public:
 
 #pragma pack(push, 1)
 	struct StunRequest {
@@ -59,7 +60,8 @@ class HolePuncher {
 #pragma pack(pop)
 
 
-	std::tuple<std::string, std::string> punchAhole(std::unique_ptr<udp::socket>& socket) {
+
+	static std::tuple<std::string, std::string> punchAhole(std::unique_ptr<udp::socket>& socket) const {
 		auto stunAddress = boost::asio::ip::make_address("142.250.15.127"); //address of stun2.l.google.com
 
 		udp::endpoint stunEndpoint(stunAddress, 3748);
