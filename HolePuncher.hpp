@@ -59,9 +59,7 @@ public:
 	};
 #pragma pack(pop)
 
-
-
-	static std::tuple<std::string, std::string> punchAhole(std::unique_ptr<udp::socket>& socket) {
+	inline static std::tuple<std::string, std::string> punchAhole(udp::socket *socket) {
 		auto stunAddress = boost::asio::ip::make_address("142.250.15.127"); //address of stun2.l.google.com
 
 		udp::endpoint stunEndpoint(stunAddress, 3748);
@@ -108,7 +106,5 @@ public:
 		port = std::to_string((ntohl(srsp->attribXORMAPPEDADDRESS.port) & 0xffFF) ^ (srsp->magicCookie >> 16));
 
 		return std::make_tuple(address, port);
-
-
 	}
 };
