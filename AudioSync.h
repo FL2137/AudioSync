@@ -20,6 +20,7 @@
 #include <qdial.h>
 #include <qlcdnumber.h>
 #include <qmutex.h>
+#include <qmessagebox.h>
 
 #include <functional>
 #include <utility>
@@ -27,6 +28,7 @@
 
 #include "TcpServer.hpp"
 #include "TcpClient.hpp"
+#include "HolePuncher.hpp"
 
 #include "InputDialog.hpp"
 #include "LoginDialogClass.hpp"
@@ -58,6 +60,7 @@ private:
     void friendListCheck();
     void runServer();
     void uiConnects();
+    void createRoom();
 
 //private variables
 private:

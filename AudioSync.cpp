@@ -94,12 +94,12 @@ void AudioSync::runServer() {
     //        qDebug() << "AudioSync::runServer(): invalid json provided";
     //    }
     //    
-    //    if (js["type"] == "NOTIFYROOM") {
+    //    if (js["type"] == "NOTIFY_ROOM") {
     //        //call for room check
     //        roomCheck();
     //        response = "{'ok':'OK'}";
     //    }
-    //    else if (js["type"] == "NOTIFYFRIENDS") {
+    //    else if (js["type"] == "NOTIFY_FRIENDS") {
 
     //        friendListCheck();
     //        response = "{'ok':'OK'}";
