@@ -4,7 +4,27 @@ using boost::asio::ip::udp;
 
 AudioHandler::AudioHandler(MODE mode) {
 
-	this->socket = std::make_unique<udp::socket>(*ioc.get(), this->localEndpoint);
+	this->ioc = std::make_unique<boost::asio::io_context>();
+
+	if (mode == MODE::CAPTURE) { //sending
+		this->localEndpoint = udp::endpoint(udp::v4(), 6050);
+		this->socket = std::make_shared<udp::socket>(*ioc.get(), this->localEndpoint);
+	}
+
+	else if (mode == MODE::RENDER) { //receiving and rendering audio
+		this->localEndpoint = udp::endpoint(udp::v4(), 6051);
+		this->socket = std::make_shared<udp::socket>(*ioc.get(), this->localEndpoint);
+		if (socket->is_open()) {
+			qDebug() << "render socket is open";
+		}
+
+		HolePuncher::punchAhole(socket.get());
+		qDebug() << "punched a hole!";
+	}
+	
+
+	/*auto ep = HP::punchAhole(socket);
+	std::get<0>(ep);*/
 }
 
 AudioHandler::~AudioHandler() {
@@ -21,7 +41,6 @@ struct period_t { //no reason for this btw
 	uint32_t _default;
 	uint32_t fundamental;
 };
-
 
 void AudioHandler::win32AudioCapture() {
 	HRESULT hr;
@@ -289,4 +308,3 @@ void AudioHandler::hrHandler(HRESULT hr) {
 		std::cout << calls++;
 	}
 }
-
