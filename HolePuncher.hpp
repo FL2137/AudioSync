@@ -59,17 +59,25 @@ public:
 	};
 #pragma pack(pop)
 
-	inline static std::tuple<std::string, std::string> punchAhole(udp::socket *socket) {
-		auto stunAddress = boost::asio::ip::make_address("142.250.15.127"); //address of stun2.l.google.com
+	static std::tuple<std::string, std::string> punchAhole(udp::socket *socket) {
 
-		udp::endpoint stunEndpoint(stunAddress, 3748);
+		boost::asio::io_context ioc;
+		udp::resolver resolver(ioc);
+
+		udp::endpoint stunEndpoint = *resolver.resolve("stun2.l.google.com", "3748").begin(); //address of stun2.l.google.com
+
+		//3748
+		//udp::endpoint stunEndpoint(stunAddress, 19302);
 
 		StunRequest stunRequest;
 		boost::system::error_code error;
 
 		socket->send_to(boost::asio::buffer(&stunRequest, sizeof(stunRequest)), stunEndpoint, 0, error);
 
-		if (error.value() != 0) {
+		if (error.value() == 0) {
+			std::cout << error.message() << std::endl;
+		}
+		else {
 			std::cout << error.message() << std::endl;
 		}
 
