@@ -38,6 +38,9 @@
 #include <boost/bind/bind.hpp>
 #include <boost/system.hpp>
 
+#include "HolePuncher.hpp"
+#include "WebsocketClient.hpp"
+
 using boost::asio::ip::udp;
 
 class AudioHandler : public QObject {
@@ -69,6 +72,14 @@ public:
 		qDebug() << "Added endpoint: " << ep.address().to_string() << ":" << ep.port();
 
 		endpointList.append(ep);
+	}
+
+	udp::socket* getSocket() {
+		return socket.get();
+	}
+
+	void printShareCount() {
+		qDebug() << "ShareCount: " << socket.use_count();
 	}
 
 public slots:
@@ -106,9 +117,9 @@ private:
 	//boost stuff
 	std::unique_ptr<boost::asio::io_context> ioc;
 	std::unique_ptr<udp::resolver> resolver;
-	std::unique_ptr<udp::socket> socket;
+	std::shared_ptr<udp::socket> socket;
 
-	udp::endpoint localEndpoint = udp::endpoint(udp::v4(), 3009);
+	udp::endpoint localEndpoint;
 
 	QList<udp::endpoint> endpointList;
 
