@@ -46,11 +46,9 @@ namespace _net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;
 using udp = boost::asio::ip::udp;
 
-
 class BeastClient {
 
 public:
-
 
 	static void syncBeast(const std::string& request, std::string& response) {
 		_net::io_context ioc;
@@ -58,13 +56,13 @@ public:
 
 		websocket::stream<tcp::socket> ws{ ioc };
 
-		tcp::endpoint remoteHost(_net::ip::make_address("192.168.1.109"), 3005);
+		tcp::endpoint remoteHost(_net::ip::make_address("192.168.0.109"), 3005);
 
 		const auto results = resolver.resolve(remoteHost);
 
 		auto ep = _net::connect(ws.next_layer(), results);
 
-		std::string host = "192.168.1.109:3005";
+		std::string host = "192.168.0.109:3005";
 
 		ws.set_option(websocket::stream_base::decorator([](websocket::request_type& req) {
 			req.set(http::field::user_agent, std::string(BOOST_BEAST_VERSION_STRING) + " websocket-client-coro");
