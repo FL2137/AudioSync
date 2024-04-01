@@ -111,7 +111,7 @@ protected:
 			QString filename = QFileDialog::getOpenFileName(m_parent, tr("Open image"), "/", tr("Image (*.png *.jpg *.bmp)"));
 			if (!filename.isEmpty()) {
 				QFile file(filename, nullptr);
-				file.open(QIODevice::ReadOnly);
+				file.open(QIODevice::ReadWrite);
 			
 				QString name = filename.right(filename.size() - filename.lastIndexOf("/") - 1);
 				json js;
@@ -123,11 +123,13 @@ protected:
 
 				js["avatar"] = name.toStdString();
 
-
 				settings.resize(0);
 				settings.write(js.dump().c_str());
 
 				this->setStyleSheet("background-image: url(" + filename + ")");
+
+				qDebug() << filename;
+				QFile::copy(filename, QDir::currentPath() + "/x64/Debug/Avatars/" + name);
 
 				file.close();
 				settings.close();
