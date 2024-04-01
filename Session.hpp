@@ -1,8 +1,12 @@
 #pragma once
 
+#include <tuple>
+
 #include <qobject.h>
 #include <qstring.h>
+
 #include "AudioHandler.hpp"
+#include "HolePuncher.hpp"
 
 class Session : public QObject {
 
@@ -43,7 +47,6 @@ private:
 
 	AudioHandler* audioCapture;
 	AudioHandler* audioRender;
-
 
 	QThread renderThread;
 	QThread captureThread;

@@ -2,6 +2,7 @@
 #include <iostream>
 
 Session::Session() {
+	
 	audioCapture = new AudioHandler(AudioHandler::MODE::CAPTURE);
 	audioRender = new AudioHandler(AudioHandler::MODE::RENDER);
 
@@ -33,6 +34,7 @@ Session::Session() {
 }
 
 void Session::startSession() {
+	audioRender->printShareCount();
 
 	audioCapture->moveToThread(&captureThread);
 	audioRender->moveToThread(&renderThread);
