@@ -14,7 +14,7 @@ class Session : public QObject {
 
 public:
 
-	Session(int _uid);
+	Session();
 
 	~Session();
 	
