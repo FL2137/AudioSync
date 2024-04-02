@@ -53,7 +53,7 @@ void AudioSync::createRoom() {
     json response = json::parse(res);
 
     if (response["ok"] == "OK") {
-        session = std::make_unique<Session>();
+        session = std::make_unique<Session>(this->uid);
     }
     else {
         QMessageBox::warning(this, "Failure creating your lobby", "Server rejected the creation of your lobby room");
@@ -63,12 +63,6 @@ void AudioSync::createRoom() {
 }
 
 AudioSync::~AudioSync() {
-
-    renderThread.quit();
-    renderThread.wait();
-
-    captureThread.quit();
-    captureThread.wait();
 
     delete loginDialog;
     delete myAvatar;
