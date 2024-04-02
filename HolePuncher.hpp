@@ -64,7 +64,7 @@ public:
 		boost::asio::io_context ioc;
 		udp::resolver resolver(ioc);
 
-		udp::endpoint stunEndpoint = *resolver.resolve("stun2.l.google.com", "3748").begin(); //address of stun2.l.google.com
+		udp::endpoint stunEndpoint = *resolver.resolve("stun2.l.google.com", "3478").begin(); //address of stun2.l.google.com
 
 		//3748
 		//udp::endpoint stunEndpoint(stunAddress, 19302);
