@@ -14,15 +14,8 @@ AudioHandler::AudioHandler(MODE mode) {
 	else if (mode == MODE::RENDER) { //receiving and rendering audio
 		this->localEndpoint = udp::endpoint(udp::v4(), 6051);
 		this->socket = std::make_shared<udp::socket>(*ioc.get(), this->localEndpoint);
-		if (socket->is_open()) {
-			qDebug() << "render socket is open";
-		}
-
-		HolePuncher::punchAhole(socket.get());
-		qDebug() << "punched a hole!";
 	}
 	
-
 	/*auto ep = HP::punchAhole(socket);
 	std::get<0>(ep);*/
 }

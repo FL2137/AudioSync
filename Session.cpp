@@ -1,8 +1,10 @@
 #include "Session.hpp"
 #include <iostream>
 
-Session::Session() {
-	
+Session::Session(int _uid){
+
+	this->uid = _uid;
+
 	audioCapture = new AudioHandler(AudioHandler::MODE::CAPTURE);
 	audioRender = new AudioHandler(AudioHandler::MODE::RENDER);
 
@@ -11,14 +13,13 @@ Session::Session() {
 	
 	auto endpointData = HolePuncher::punchAhole(_socket); //this lux bad
 
-	qDebug() << "after hole punching";
-		
 	json request;
 
 	request["type"] = "SET_ENDPOINT";
 	request["uid"] = this->uid;
 	request["address"] = std::get<0>(endpointData);
 	request["port"] = std::get<1>(endpointData);
+
 
 	std::string res;
 
@@ -27,7 +28,7 @@ Session::Session() {
 	json response = json::parse(res);
 	
 	if (response["ok"] == "OK") {
-		//yay, can start our session
+		
 	}
 
 	renderBuffer = new char[BUFFERSIZE] {0};
