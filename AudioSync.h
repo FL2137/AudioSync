@@ -11,6 +11,7 @@
 #include <qaudiosink.h>
 #include <qrandom.h>
 #include <qthreadpool.h>
+#include <qpair.h>
 #include <qobject.h>
 #include <qpushbutton.h>
 #include <qlistwidget.h>
@@ -76,6 +77,8 @@ private:
     QMutex serverMutex;
 
     mutable QString localAddress = "";
+
+    QList<QPair<int, QString>> friendList;
 
 //public variables
 public:

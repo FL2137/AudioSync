@@ -24,6 +24,8 @@ AudioSync::AudioSync(QWidget *parent)
 
     QStringList addressList = listLocalAddresses();
 
+    friendList = {};
+
     localAddress = addressList[addressList.count() - 1];
 
     myAvatar = new AvatarWidget(this);
@@ -138,6 +140,16 @@ void AudioSync::friendListCheck() {
     json request;
     request["type"] = "FRIENDS_CHECK";
     request["uid"] = this->uid;
+    
+    std::string res;
+    BeastClient::syncBeast(request.dump(), res);
+    json response;
+    if (json::accept(res)) {
+        response = json::parse(res);
+    }
+
+
+
 
 }
 
