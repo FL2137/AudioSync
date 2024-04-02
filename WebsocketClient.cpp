@@ -2,26 +2,33 @@
 
 #include <qnetworkrequest.h>
 
-WebsocketClient::WebsocketClient(const QUrl& url, QObject* parent) : QObject(parent) {
-	QUrl u("ws://192.168.1.109:3005");
+WebsocketClient::WebsocketClient(const QUrl& url, std::function<void(std::string, std::string&)> _parser,  QObject* parent) : QObject(parent) {
+	this->parser = _parser;
+
+	QUrl u("ws://192.168.0.109:3005");
 	qDebug() << "Websocket client: " << u;
 	connect(&socket, &QWebSocket::connected, this, &WebsocketClient::onConnected);
 	connect(&socket, &QWebSocket::disconnected, this, &WebsocketClient::closed);
 
 	socket.open(u);
+
+	qDebug() << socket.localAddress() << ":" << socket.localPort();
 }
 
 void WebsocketClient::onConnected() {
 	qDebug() << "Websocket connected";
 	connect(&socket, &QWebSocket::textMessageReceived, this, &WebsocketClient::onTextMessageReceived);
 
-	socket.sendTextMessage(QString("lalalala"));
+	socket.sendTextMessage("PING");
+
 }
 
 void WebsocketClient::onTextMessageReceived(QString message) {
-	qDebug() << "WebsocketClient received: " << message;
-	
-	//optional close
+	if (message == "PONG") return;
+
+	std::string response;
+	parser(message.toStdString(), response);
+	//optional close and send
 }
 
 void WebsocketClient::makeRequest(QWebSocket* socket, QObject *sender, std::function<void(const QString& response)> *handler, const json request) {

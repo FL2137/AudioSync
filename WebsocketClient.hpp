@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <functional>
 
 #include "nlohmann/json.hpp"
 
@@ -24,7 +25,7 @@ class WebsocketClient : public QObject {
 	Q_OBJECT
 
 public:
-	WebsocketClient(const QUrl& url, QObject* parent = nullptr);
+	WebsocketClient(const QUrl& url, std::function<void(std::string, std::string&)> _parser, QObject* parent = nullptr);
 	static void makeRequest(QWebSocket* socket, QObject* sender, std::function<void(const QString& response)>* handler, const json request);
 
 signals:
@@ -37,6 +38,9 @@ private slots:
 private:
 	QWebSocket socket;
 	bool debug;
+
+	std::function<void(std::string, std::string&)> parser;
+
 };
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
