@@ -148,8 +148,24 @@ void AudioSync::friendListCheck() {
         response = json::parse(res);
     }
 
+    std::vector<std::string> frens = {};
 
+    frens = response["data"].get<std::vector<std::string>>();
 
+    //check if someone become online
+    for (auto f : frens) {
+        if (!friendList.contains(QString::fromStdString(f))) {
+            friendList.push_back({ 1, QString::fromStdString(f) });
+            ui.frenList->addItem(QString::fromStdString(f));
+        }
+    }
+
+    //check if somone went offline
+    for (auto f : friendList) {
+        if (std::find(frens.begin(), frens.end(), [](std::string lhs, QPair<int, QString> rhs) { return (lhs == rhs.second.toStdString()) ? true : false; }) == frens.end()) {
+            friendList.removeOne(f);
+        }
+    }
 
 }
 
