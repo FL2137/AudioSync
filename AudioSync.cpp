@@ -164,9 +164,9 @@ void AudioSync::friendListCheck() {
     for (auto f : friendList) {
         if (std::find(frens.begin(), frens.end(), [](std::string lhs, QPair<int, QString> rhs) { return (lhs == rhs.second.toStdString()) ? true : false; }) == frens.end()) {
             friendList.removeOne(f);
+            //ui.frenList->removeItemWidget()
         }
     }
-
 }
 
 //slots and signals
