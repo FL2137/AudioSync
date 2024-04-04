@@ -156,16 +156,23 @@ void AudioSync::friendListCheck() {
     for (auto f : frens) {
         if (!friendList.contains(QString::fromStdString(f))) {
             friendList.push_back({ 1, QString::fromStdString(f) });
-            ui.frenList->addItem(QString::fromStdString(f));
+            QListWidgetItem *item = new QListWidgetItem(ui.frenList);
+            item->setText(QString::fromStdString(f));
+            ui.frenList->addItem(item);
         }
     }
 
     //check if somone went offline
-    for (auto f : friendList) {
-        if (std::find(frens.begin(), frens.end(), [](std::string lhs, QPair<int, QString> rhs) { return (lhs == rhs.second.toStdString()) ? true : false; }) == frens.end()) {
-            friendList.removeOne(f);
-            //ui.frenList->removeItemWidget()
+    std::vector<QListWidgetItem*> toRemove = {};
+
+    for (int item = 0; item < ui.frenList->count(); item++) {
+        if (std::find(frens.begin(), frens.end(), ui.frenList->item(item)->text().toStdString()) == frens.end()) {
+            toRemove.push_back(ui.frenList->item(item));
         }
+    }
+
+    for (QListWidgetItem* item : toRemove) {
+        ui.frenList->removeItemWidget(item);
     }
 }
 
