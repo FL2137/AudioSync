@@ -78,8 +78,6 @@ private:
 
     mutable QString localAddress = "";
 
-    QList<QPair<int, QString>> friendList;
-
 //public variables
 public:
     QByteArray captureBuffer;
