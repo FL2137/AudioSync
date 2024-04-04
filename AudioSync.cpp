@@ -153,12 +153,10 @@ void AudioSync::friendListCheck() {
     frens = response["data"].get<std::vector<std::string>>();
 
     //check if someone become online
+
     for (auto f : frens) {
-        if (!friendList.contains(QString::fromStdString(f))) {
-            friendList.push_back({ 1, QString::fromStdString(f) });
-            QListWidgetItem *item = new QListWidgetItem(ui.frenList);
-            item->setText(QString::fromStdString(f));
-            ui.frenList->addItem(item);
+        if (ui.frenList->findItems(QString::fromStdString(f), Qt::MatchFlag::MatchExactly).count() == 0)
+            ui.frenList->addItem(new QListWidgetItem(QString::fromStdString(f), ui.frenList));
         }
     }
 
