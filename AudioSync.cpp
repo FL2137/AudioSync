@@ -24,8 +24,6 @@ AudioSync::AudioSync(QWidget *parent)
 
     QStringList addressList = listLocalAddresses();
 
-    friendList = {};
-
     localAddress = addressList[addressList.count() - 1];
 
     myAvatar = new AvatarWidget(this);
@@ -56,6 +54,9 @@ void AudioSync::createRoom() {
 
     if (response["ok"] == "OK") {
         session = std::make_unique<Session>(this->uid);
+
+        //room gui update here
+        //##
     }
     else {
         QMessageBox::warning(this, "Failure creating your lobby", "Server rejected the creation of your lobby room");
@@ -157,7 +158,6 @@ void AudioSync::friendListCheck() {
     for (auto f : frens) {
         if (ui.frenList->findItems(QString::fromStdString(f), Qt::MatchFlag::MatchExactly).count() == 0)
             ui.frenList->addItem(new QListWidgetItem(QString::fromStdString(f), ui.frenList));
-        }
     }
 
     //check if somone went offline
