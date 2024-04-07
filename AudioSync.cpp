@@ -82,16 +82,17 @@ AudioSync::~AudioSync() {
 
 void AudioSync::runServer() {
 
+
     auto serverFoo = [&](std::string request, std::string& response) {
         
-        auto iter = request.find('/');
-        int uid = std::stoi(request.substr(iter + 1));
-        request = request.substr(0, iter);
+        json body = json::parse(request);
 
-        if (uid == this->uid)
+
+        if ((body["type"].get<std::string>().find("NOTIFY") != std::string::npos) && body["uid"].get<int>() == this->uid)
             return;
-
-        if (request == "NOTIFY_ROOM") {
+        
+        //notifications, server sent these on it's own
+        if (body["type"] == "NOTIFY_ROOM") {
 
             roomCheck();
         }
@@ -100,10 +101,19 @@ void AudioSync::runServer() {
             friendListCheck();
         }
 
+
+        //responses to requests sent by this client application
+        else if (body["type"] == "RES_ROOMCHECK") {
+            if (body["ok"] == "OK") {
+                //update room
+            }
+        }
+
     };
 
     QUrl url("192.168.0.109:3005");
     webSocketClient = new WebsocketClient(url, serverFoo, this);
+    connect(this, &AudioSync::sendWebSocketMessage, webSocketClient, &WebsocketClient::emitTextMessage);
 }
 
 void AudioSync::roomCheck() {
@@ -120,20 +130,7 @@ void AudioSync::roomCheck() {
 
     std::string strResponse;
 
-    BeastClient::syncBeast(request.dump(), strResponse);
-   
-    json response = json::parse(strResponse);
-      
-    if (response["ok"] == "OK") {
-        json data = json::parse(response["data"].get<std::string>()); //for some reason this works but .get<json>() doesnt
-        std::vector<std::string> users;
-        data.get_to(users);
-        for (const auto& user : users) {
-
-            auto ptr = new AvatarWidget("", roomUsers.size(), ui.roomView);
-            roomUsers.push_back(ptr);
-        }
-    }
+    emit sendWebSocketMessage(request.dump());
 }
 
 void AudioSync::friendListCheck() {

@@ -54,6 +54,7 @@ public slots:
 signals:
     void runRecordingThread();
     void runRenderingThread(char* buffer);
+    void sendWebSocketMessage(const std::string& message);
 
 //private functions
 private:
