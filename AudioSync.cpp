@@ -96,16 +96,16 @@ void AudioSync::runServer() {
 
             roomCheck();
         }
-        else if (request == "NOTIFY_FRIENDS") {
+        else if (body["type"] == "NOTIFY_FRIENDS") {
 
             friendListCheck();
         }
 
 
         //responses to requests sent by this client application
-        else if (body["type"] == "RES_ROOMCHECK") {
+        else if (body["type"] == "RESPONSE_ROOMCHECK") {
             if (body["ok"] == "OK") {
-                //update room
+                qDebug() << "roomcheck fine";
             }
         }
 
