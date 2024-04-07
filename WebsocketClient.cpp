@@ -10,8 +10,6 @@ WebsocketClient::WebsocketClient(const QUrl& url, std::function<void(std::string
 	connect(&socket, &QWebSocket::connected, this, &WebsocketClient::onConnected);
 	connect(&socket, &QWebSocket::disconnected, this, &WebsocketClient::closed);
 
-	socket.open(u);
-
 	qDebug() << socket.localAddress() << ":" << socket.localPort();
 }
 
@@ -21,6 +19,10 @@ void WebsocketClient::onConnected() {
 
 	socket.sendTextMessage("PING");
 
+}
+
+void WebsocketClient::emitTextMessage(const std::string& message) {
+	socket.sendTextMessage(QString::fromStdString(message));
 }
 
 void WebsocketClient::onTextMessageReceived(QString message) {

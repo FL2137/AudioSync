@@ -27,16 +27,19 @@ class WebsocketClient : public QObject {
 public:
 	WebsocketClient(const QUrl& url, std::function<void(std::string, std::string&)> _parser, QObject* parent = nullptr);
 	static void makeRequest(QWebSocket* socket, QObject* sender, std::function<void(const QString& response)>* handler, const json request);
+	QWebSocket socket;
 
 signals:
 	void closed();
+
+public slots:
+	void emitTextMessage(const std::string &message);
 
 private slots:
 	void onConnected();
 	void onTextMessageReceived(QString message);
 
 private:
-	QWebSocket socket;
 	bool debug;
 
 	std::function<void(std::string, std::string&)> parser;
