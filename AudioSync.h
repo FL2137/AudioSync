@@ -32,7 +32,6 @@
 #include "HolePuncher.hpp"
 
 #include "InputDialog.hpp"
-#include "LoginDialogClass.hpp"
 #include "WebsocketClient.hpp"
 #include "AvatarWidget.hpp"
 
@@ -68,7 +67,6 @@ private:
 private:
     Ui::AudioSyncClass ui;
     Ui::ConnectDialog ui_connectDialog;
-    Ui::LoginDialog ui_loginDialog;
 
     QThread captureThread;
     QThread renderThread;
@@ -85,7 +83,6 @@ public:
     char* renderBuffer; 
 
     ConnectDialogClass *connectDialog;
-    LoginDialogClass* loginDialog;
 
     AvatarWidget* myAvatar = nullptr;
     std::vector<AvatarWidget*> roomUsers = {};
