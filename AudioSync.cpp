@@ -37,7 +37,6 @@ void AudioSync::uiConnects() {
 
     connect(ui.createRoomButton, &QPushButton::clicked, this, &AudioSync::createRoom);
 
-    runLoginDialog();
 }
 
 void AudioSync::createRoom() {
@@ -67,7 +66,6 @@ void AudioSync::createRoom() {
 
 AudioSync::~AudioSync() {
 
-    delete loginDialog;
     delete myAvatar;
 
     for (AvatarWidget* avatar : roomUsers) { //ensure deletion of every avatar widget
@@ -107,6 +105,9 @@ void AudioSync::runServer() {
             if (body["ok"] == "OK") {
                 qDebug() << "roomcheck fine";
             }
+        }
+        else if (body["type"] == "RESPONSE_CREATE_R OOM") {
+
         }
 
     };
