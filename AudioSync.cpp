@@ -37,6 +37,8 @@ void AudioSync::uiConnects() {
 
     connect(ui.createRoomButton, &QPushButton::clicked, this, &AudioSync::createRoom);
 
+    connect(ui.okButton, &QPushButton::clicked, this, &AudioSync::checkCredentials);
+
 }
 
 void AudioSync::createRoom() {
@@ -106,10 +108,15 @@ void AudioSync::runServer() {
                 qDebug() << "roomcheck fine";
             }
         }
-        else if (body["type"] == "RESPONSE_CREATE_R OOM") {
+        else if (body["type"] == "RESPONSE_CREATE_ROOM") {
 
         }
-
+        else if (body["type"] == "RESPONSE_LOGIN") {
+            if (body["ok"] == "OK") {
+                qDebug() << "login fine";
+                ui.loginShade->deleteLater();
+            }
+        }
     };
 
     QUrl url("192.168.0.109:3005");
@@ -185,3 +192,21 @@ void AudioSync::runConnectDialog() {
     connectDialog = new ConnectDialogClass(*session, this);
 }
 
+void AudioSync::checkCredentials() {
+
+    QString nicknameText = ui.loginEdit->text();
+    QString passwordText = ui.passEdit->text();
+
+    json body;
+    body["type"] = "LOGIN";
+
+    json data;
+    data["nickname"] = nicknameText.toStdString();
+    data["password"] = passwordText.toStdString();
+
+    body["data"] = data;
+
+    qDebug() << body.dump();
+
+    emit this->sendWebSocketMessage(body.dump());
+}
