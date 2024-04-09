@@ -116,6 +116,11 @@ void AudioSync::runServer() {
                 qDebug() << "login fine";
                 ui.loginShade->deleteLater();
             }
+            else {
+                ui.badLoginEdit->setText("Incorrect login or password");
+                ui.passEdit->setText("");
+                ui.loginEdit->setText("");
+            }
         }
     };
 
