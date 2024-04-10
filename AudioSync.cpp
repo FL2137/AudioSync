@@ -46,24 +46,8 @@ void AudioSync::createRoom() {
     json request;
     request["type"] = "CREATE_ROOM";
     request["uid"] = this->uid;
-
-    std::string res;
-
-    BeastClient::syncBeast(request.dump(), res);
-
-    json response = json::parse(res);
-
-    if (response["ok"] == "OK") {
-        session = std::make_unique<Session>(this->uid);
-
-        //room gui update here
-        //##
-    }
-    else {
-        QMessageBox::warning(this, "Failure creating your lobby", "Server rejected the creation of your lobby room");
-    }
-
-
+    
+    emit sendWebSocketMessage(request.dump());
 }
 
 AudioSync::~AudioSync() {
@@ -109,17 +93,49 @@ void AudioSync::runServer() {
             }
         }
         else if (body["type"] == "RESPONSE_CREATE_ROOM") {
-
+            if (body["ok"] == "OK") {
+                session = std::make_unique<Session>(this->uid);
+                //room gui update here
+                //##
+            }
+            else {
+                QMessageBox::warning(this, "Failure creating your lobby", "Server rejected the creation of your lobby room");
+            }
         }
         else if (body["type"] == "RESPONSE_LOGIN") {
             if (body["ok"] == "OK") {
-                qDebug() << "login fine";
                 ui.loginShade->deleteLater();
+                this->uid = body["uid"].get<int>();
             }
             else {
                 ui.badLoginEdit->setText("Incorrect login or password");
                 ui.passEdit->setText("");
                 ui.loginEdit->setText("");
+            }
+        }
+        else if (body["type"] == "RESPONSE_FRIENDLIST_CHECK") {
+            std::vector<std::string> frens = {};
+
+            frens = body["data"].get<std::vector<std::string>>();
+
+            //check if someone become online
+
+            for (auto f : frens) {
+                if (ui.frenList->findItems(QString::fromStdString(f), Qt::MatchFlag::MatchExactly).count() == 0)
+                    ui.frenList->addItem(new QListWidgetItem(QString::fromStdString(f), ui.frenList));
+            }
+
+            //check if somone went offline
+            std::vector<QListWidgetItem*> toRemove = {};
+
+            for (int item = 0; item < ui.frenList->count(); item++) {
+                if (std::find(frens.begin(), frens.end(), ui.frenList->item(item)->text().toStdString()) == frens.end()) {
+                    toRemove.push_back(ui.frenList->item(item));
+                }
+            }
+
+            for (QListWidgetItem* item : toRemove) {
+                ui.frenList->removeItemWidget(item);
             }
         }
     };
@@ -152,36 +168,7 @@ void AudioSync::friendListCheck() {
     request["type"] = "FRIENDS_CHECK";
     request["uid"] = this->uid;
     
-    std::string res;
-    BeastClient::syncBeast(request.dump(), res);
-    json response;
-    if (json::accept(res)) {
-        response = json::parse(res);
-    }
-
-    std::vector<std::string> frens = {};
-
-    frens = response["data"].get<std::vector<std::string>>();
-
-    //check if someone become online
-
-    for (auto f : frens) {
-        if (ui.frenList->findItems(QString::fromStdString(f), Qt::MatchFlag::MatchExactly).count() == 0)
-            ui.frenList->addItem(new QListWidgetItem(QString::fromStdString(f), ui.frenList));
-    }
-
-    //check if somone went offline
-    std::vector<QListWidgetItem*> toRemove = {};
-
-    for (int item = 0; item < ui.frenList->count(); item++) {
-        if (std::find(frens.begin(), frens.end(), ui.frenList->item(item)->text().toStdString()) == frens.end()) {
-            toRemove.push_back(ui.frenList->item(item));
-        }
-    }
-
-    for (QListWidgetItem* item : toRemove) {
-        ui.frenList->removeItemWidget(item);
-    }
+    emit sendWebSocketMessage(request.dump());
 }
 
 //slots and signals
@@ -210,8 +197,6 @@ void AudioSync::checkCredentials() {
     data["password"] = passwordText.toStdString();
 
     body["data"] = data;
-
-    qDebug() << body.dump();
 
     emit this->sendWebSocketMessage(body.dump());
 }
