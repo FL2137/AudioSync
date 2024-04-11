@@ -33,23 +33,6 @@ AudioSync::AudioSync(QWidget *parent)
     uiConnects();
 }
 
-void AudioSync::uiConnects() {
-
-    connect(ui.createRoomButton, &QPushButton::clicked, this, &AudioSync::createRoom);
-
-    connect(ui.okButton, &QPushButton::clicked, this, &AudioSync::checkCredentials);
-
-}
-
-void AudioSync::createRoom() {
-
-    json request;
-    request["type"] = "CREATE_ROOM";
-    request["uid"] = this->uid;
-    
-    emit sendWebSocketMessage(request.dump());
-}
-
 AudioSync::~AudioSync() {
 
     delete myAvatar;
@@ -62,7 +45,16 @@ AudioSync::~AudioSync() {
     delete webSocketClient;
 }
 
-//functions
+void AudioSync::uiConnects() {
+
+    connect(ui.createRoomButton, &QPushButton::clicked, this, &AudioSync::createRoom);
+
+    connect(ui.okButton, &QPushButton::clicked, this, &AudioSync::checkCredentials);
+
+    connect(ui.joinRoomEdit, &QPushButton::clicked, this, &AudioSync::joinRoom);
+}
+
+//functions (mostly server communication)
 
 void AudioSync::runServer() {
 
@@ -113,7 +105,7 @@ void AudioSync::runServer() {
                 ui.loginEdit->setText("");
             }
         }
-        else if (body["type"] == "RESPONSE_FRIENDLIST_CHECK") {
+        else if (body["type"] == "RESPONSE_FRIENDS_CHECK") {
             std::vector<std::string> frens = {};
 
             frens = body["data"].get<std::vector<std::string>>();
@@ -170,6 +162,33 @@ void AudioSync::friendListCheck() {
     
     emit sendWebSocketMessage(request.dump());
 }
+
+void AudioSync::createRoom() {
+
+    json request;
+    request["type"] = "CREATE_ROOM";
+    request["uid"] = this->uid;
+
+    emit sendWebSocketMessage(request.dump());
+}
+
+void AudioSync::joinRoom() {
+
+    bool ok;
+
+    int roomId = ui.roomIdEdit->text().toInt(&ok);
+
+    if (ok == false) {
+        QMessageBox::warning(this, "Incorrect input", "Room ID you typed in is in incorrect format");
+        return;
+    }
+
+    json request;
+    request["type"] = "JOIN_ROOM";
+    request["uid"] = this->uid;
+    request["rid"] = roomId;
+}
+
 
 //slots and signals
 void AudioSync::startPlaying() {

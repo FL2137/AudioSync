@@ -35,6 +35,8 @@
 #include "WebsocketClient.hpp"
 #include "AvatarWidget.hpp"
 
+#include "SHA256.hpp"
+
 class AudioSync : public QMainWindow
 {
     Q_OBJECT
@@ -48,7 +50,9 @@ public slots:
     void startRecording();
     void startPlaying();
     void runConnectDialog();
-    void runLoginDialog();
+
+private slots:
+    void checkCredentials();
 
 signals:
     void runRecordingThread();
@@ -62,6 +66,7 @@ private:
     void runServer();
     void uiConnects();
     void createRoom();
+    void joinRoom();
 
 //private variables
 private:
