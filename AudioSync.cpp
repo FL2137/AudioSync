@@ -105,6 +105,17 @@ void AudioSync::runServer() {
                 ui.loginEdit->setText("");
             }
         }
+        else if (body["type"] == "RESPONSE_JOIN_ROOM") {
+
+            if (body["ok"] == "OK") {
+                int roomId = body["rid"].get<int>();
+                
+                ui.connectButton->setEnabled(false);
+                session = std::make_unique<Session>(this->uid);
+                session->roomid = roomId;
+                roomCheck();
+            }
+        }
         else if (body["type"] == "RESPONSE_FRIENDS_CHECK") {
             std::vector<std::string> frens = {};
 
@@ -144,7 +155,7 @@ void AudioSync::roomCheck() {
     request["type"] = "ROOM_CHECK";
 
     json data;
-    data["uid"] = session.get()->uid;
+    data["uid"] = this->uid;
     data["rid"] = session.get()->roomid;
 
     request["data"] = data;
