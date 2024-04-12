@@ -51,7 +51,7 @@ void AudioSync::uiConnects() {
 
     connect(ui.okButton, &QPushButton::clicked, this, &AudioSync::checkCredentials);
 
-    connect(ui.joinRoomEdit, &QPushButton::clicked, this, &AudioSync::joinRoom);
+    connect(ui.joinRoomButton, &QPushButton::clicked, this, &AudioSync::joinRoom);
 }
 
 //functions (mostly server communication)
