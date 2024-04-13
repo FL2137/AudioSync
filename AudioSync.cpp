@@ -87,6 +87,8 @@ void AudioSync::runServer() {
         else if (body["type"] == "RESPONSE_CREATE_ROOM") {
             if (body["ok"] == "OK") {
                 session = std::make_unique<Session>(this->uid);
+                session->roomid = body["rid"].get<int>();
+                connect(session.get(), &Session::sendWebSocketMessage, this, &AudioSync::sendWebSocketMessage);
                 //room gui update here
                 //##
             }
@@ -113,6 +115,9 @@ void AudioSync::runServer() {
                 ui.connectButton->setEnabled(false);
                 session = std::make_unique<Session>(this->uid);
                 session->roomid = roomId;
+
+                connect(session.get(), &Session::sendWebSocketMessage, this, &AudioSync::sendWebSocketMessage);
+
                 roomCheck();
             }
         }
@@ -141,6 +146,7 @@ void AudioSync::runServer() {
                 ui.frenList->removeItemWidget(item);
             }
         }
+        
     };
 
     QUrl url("192.168.0.109:3005");
@@ -198,6 +204,8 @@ void AudioSync::joinRoom() {
     request["type"] = "JOIN_ROOM";
     request["uid"] = this->uid;
     request["rid"] = roomId;
+
+    emit sendWebSocketMessage(request.dump());
 }
 
 
