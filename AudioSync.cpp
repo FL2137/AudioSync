@@ -146,7 +146,11 @@ void AudioSync::runServer() {
                 ui.frenList->removeItemWidget(item);
             }
         }
-        
+        else if (body["type"] == "RESPONSE_SET_ENDPOINT") {
+            if (body["ok"] == "OK") {
+                //ok
+            }
+        }
     };
 
     QUrl url("192.168.0.109:3005");
