@@ -35,6 +35,7 @@ signals:
 	void runAudioCapture();
 	void runServerThread();
 	void runLoginDialog();
+	void sendWebSocketMessage(const std::string& message);
 
 private:
 
