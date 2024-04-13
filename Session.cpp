@@ -65,9 +65,6 @@ Session::~Session() {
 	delete audioCapture;
 	delete audioRender;
 
-	delete audioCapture;
-	delete audioRender;
-
 	delete[] renderBuffer;
 }
 
