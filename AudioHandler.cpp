@@ -11,26 +11,29 @@ AudioHandler::AudioHandler(MODE mode) {
 		boost::asio::io_context ioc;
 		udp::socket testSocket(ioc);
 		boost::system::error_code errorCode;
-		testSocket.bind({ udp::v4(), port }, errorCode);
+		testSocket.bind({ udp::v4(), (boost::asio::ip::port_type)port }, errorCode);
 
 		return errorCode != boost::asio::error::address_in_use;
 	};
 
-	if (mode == MODE::CAPTURE) { //sending
+	try {
+		if (mode == MODE::CAPTURE) { //sending
+			int freeLocalPort = 6500;
+			while (!isPortFree(freeLocalPort++));
+			this->localEndpoint = udp::endpoint(udp::v4(), freeLocalPort);
+			this->socket = std::make_shared<udp::socket>(*ioc.get(), this->localEndpoint);
+		}
+		else if (mode == MODE::RENDER) { //receiving and rendering audio
+			int freeLocalPort = 6530;
+			while (!isPortFree(freeLocalPort++));
+			this->localEndpoint = udp::endpoint(udp::v4(), freeLocalPort);
+			this->socket = std::make_shared<udp::socket>(*ioc.get(), this->localEndpoint);
+		}
+	}
+	catch (std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
 
-		int freeLocalPort = 6500;
-		
-		while (!isPortFree(freeLocalPort++));
-		
-		this->localEndpoint = udp::endpoint(udp::v4(), freeLocalPort);
-		this->socket = std::make_shared<udp::socket>(*ioc.get(), this->localEndpoint);
-	}
-	else if (mode == MODE::RENDER) { //receiving and rendering audio
-		int freeLocalPort = 6530;
-		while (!isPortFree(freeLocalPort++));
-		this->localEndpoint = udp::endpoint(udp::v4(), freeLocalPort);
-		this->socket = std::make_shared<udp::socket>(*ioc.get(), this->localEndpoint);
-	}
 	
 	/*auto ep = HP::punchAhole(socket);
 	std::get<0>(ep);*/
