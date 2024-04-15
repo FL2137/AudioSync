@@ -89,8 +89,9 @@ void AudioSync::runServer() {
                 session = std::make_unique<Session>(this->uid);
                 session->roomid = body["rid"].get<int>();
                 connect(session.get(), &Session::sendWebSocketMessage, this, &AudioSync::sendWebSocketMessage);
-                //room gui update here
-                //##
+                
+                ui.connectButton->setEnabled(false);
+                ui.createRoomButton->setEnabled(false);
             }
             else {
                 QMessageBox::warning(this, "Failure creating your lobby", "Server rejected the creation of your lobby room");
@@ -113,6 +114,8 @@ void AudioSync::runServer() {
                 int roomId = body["rid"].get<int>();
                 
                 ui.connectButton->setEnabled(false);
+                ui.createRoomButton->setEnabled(false);
+
                 session = std::make_unique<Session>(this->uid);
                 session->roomid = roomId;
 
