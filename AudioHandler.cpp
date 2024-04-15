@@ -11,7 +11,12 @@ AudioHandler::AudioHandler(MODE mode) {
 		boost::asio::io_context ioc;
 		udp::socket testSocket(ioc);
 		boost::system::error_code errorCode;
-		testSocket.bind({ udp::v4(), (boost::asio::ip::port_type)port }, errorCode);
+		try {
+			testSocket.bind({ udp::v4(), (boost::asio::ip::port_type)port }, errorCode);
+		}
+		catch (const std::exception& e) {
+			//ignore!
+		}
 
 		return errorCode != boost::asio::error::address_in_use;
 	};
