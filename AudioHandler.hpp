@@ -68,7 +68,7 @@ public:
 
 	inline void appendEndpoint(std::string address, int port) {
 
-		udp::endpoint ep(boost::asio::ip::make_address(address.toStdString()), port);
+		udp::endpoint ep(boost::asio::ip::make_address(address), port);
 		qDebug() << "Added endpoint: " << ep.address().to_string() << ":" << ep.port();
 
 		endpointList.append(ep);
