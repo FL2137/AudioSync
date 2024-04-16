@@ -70,6 +70,14 @@ void Session::appendTargetEndpoint(std::string address, int port) {
 	audioCapture->appendEndpoint(address, port);
 }
 
+void Session::appendTargetEndpoint(json data) {
+	
+	auto array = data.array();
+	for (auto &user : array) {
+		appendTargetEndpoint(user["address"], user["port"].get<int>());
+	}
+}
+
 void Session::setUserCreds(QString nick) {
 	this->nick = nick;
 }

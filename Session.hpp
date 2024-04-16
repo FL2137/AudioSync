@@ -23,8 +23,11 @@ public:
 	void startSession();
 
 	void appendTargetEndpoint(std::string address, int port);
+	
+	void appendTargetEndpoint(json data);
 
 	void setUserCreds(QString nick);
+	
 
 public slots:
 	void changeRenderVolume(int newVolume);
