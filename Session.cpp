@@ -66,7 +66,7 @@ void Session::changeCaptureVolume(int newVolume) {
 	this->audioCapture->changeVolume(newVolume);
 }
 
-void Session::appendTargetEndpoint(QString address, int port) {
+void Session::appendTargetEndpoint(std::string address, int port) {
 	audioCapture->appendEndpoint(address, port);
 }
 

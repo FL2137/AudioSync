@@ -6,7 +6,6 @@ AudioHandler::AudioHandler(MODE mode) {
 
 	this->ioc = std::make_unique<boost::asio::io_context>();
 
-
 	auto isPortFree = [](int port) -> bool {
 		boost::asio::io_context ioc;
 		udp::socket testSocket(ioc);
@@ -38,8 +37,6 @@ AudioHandler::AudioHandler(MODE mode) {
 	catch (std::exception& e) {
 		std::cout << e.what() << std::endl;
 	}
-
-	
 	/*auto ep = HP::punchAhole(socket);
 	std::get<0>(ep);*/
 }

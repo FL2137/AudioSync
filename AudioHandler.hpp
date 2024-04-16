@@ -66,7 +66,7 @@ public:
 public:
 	bool initialized = false;
 
-	inline void appendEndpoint(QString address, int port) {
+	inline void appendEndpoint(std::string address, int port) {
 
 		udp::endpoint ep(boost::asio::ip::make_address(address.toStdString()), port);
 		qDebug() << "Added endpoint: " << ep.address().to_string() << ":" << ep.port();

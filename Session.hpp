@@ -22,7 +22,7 @@ public:
 
 	void startSession();
 
-	void appendTargetEndpoint(QString address, int port);
+	void appendTargetEndpoint(std::string address, int port);
 
 	void setUserCreds(QString nick);
 
