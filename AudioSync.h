@@ -31,7 +31,6 @@
 #include "TcpClient.hpp"
 #include "HolePuncher.hpp"
 
-#include "InputDialog.hpp"
 #include "WebsocketClient.hpp"
 #include "AvatarWidget.hpp"
 
@@ -49,7 +48,6 @@ public:
 public slots:
     void startRecording();
     void startPlaying();
-    void runConnectDialog();
 
 private slots:
     void checkCredentials();
@@ -71,7 +69,6 @@ private:
 //private variables
 private:
     Ui::AudioSyncClass ui;
-    Ui::ConnectDialog ui_connectDialog;
 
     QThread captureThread;
     QThread renderThread;
@@ -87,8 +84,6 @@ public:
     QByteArray captureBuffer;
     char* renderBuffer; 
 
-    ConnectDialogClass *connectDialog;
-
     AvatarWidget* myAvatar = nullptr;
     std::vector<AvatarWidget*> roomUsers = {};
 
@@ -102,7 +97,6 @@ public:
 
     WebsocketClient* webSocketClient = nullptr;
     QWebSocket *requestSocket = nullptr;
-
 
     int uid;                                                
 };

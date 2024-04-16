@@ -228,10 +228,6 @@ void AudioSync::startRecording() {
     emit runRecordingThread();
 }
 
-void AudioSync::runConnectDialog() {
-    connectDialog = new ConnectDialogClass(*session, this);
-}
-
 void AudioSync::checkCredentials() {
 
     QString nicknameText = ui.loginEdit->text();
