@@ -52,6 +52,7 @@ void AudioSync::uiConnects() {
     connect(ui.okButton, &QPushButton::clicked, this, &AudioSync::checkCredentials);
 
     connect(ui.joinRoomButton, &QPushButton::clicked, this, &AudioSync::joinRoom);
+
 }
 
 //functions (mostly server communication)
@@ -76,7 +77,6 @@ void AudioSync::runServer() {
 
             friendListCheck();
         }
-
 
         //responses to requests sent by this client application
         else if (body["type"] == "RESPONSE_ROOMCHECK") {
@@ -113,11 +113,14 @@ void AudioSync::runServer() {
             if (body["ok"] == "OK") {
                 int roomId = body["rid"].get<int>();
                 
+                json roomUsers = body["room"];
+
                 ui.connectButton->setEnabled(false);
                 ui.createRoomButton->setEnabled(false);
 
                 session = std::make_unique<Session>(this->uid);
                 session->roomid = roomId;
+                session->appendTargetEndpoint(roomUsers);
 
                 connect(session.get(), &Session::sendWebSocketMessage, this, &AudioSync::sendWebSocketMessage);
 
