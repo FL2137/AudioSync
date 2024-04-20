@@ -74,7 +74,7 @@ void Session::appendTargetEndpoint(json data) {
 	
 	auto array = data.array();
 	for (auto &user : array) {
-		appendTargetEndpoint(user["address"], user["port"].get<int>());
+		appendTargetEndpoint(user["address"].get<std::string>(), user["port"].get<int>());
 	}
 }
 
